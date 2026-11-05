@@ -135,3 +135,9 @@ time,
     scroll-behavior: auto !important;
   }
 }
+
+/* Font render gate (layouts/Base.astro): content waits for IBM Plex Mono; the tree does not. */
+.fonts-loading .page,
+.fonts-loading .skip-link {
+  visibility: hidden;
+}
