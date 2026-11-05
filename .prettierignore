@@ -1,0 +1,6 @@
+dist
+.astro
+node_modules
+bun.lock
+# the wordmark geometry must not be rewritten
+public/brand/*.svg

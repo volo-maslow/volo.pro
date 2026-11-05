@@ -1,0 +1,124 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getPosts, type Post } from '../../lib/posts';
+import { formatDate, isoDate } from '../../lib/format';
+import { readingTime } from '../../lib/readingTime';
+import '../../styles/prose.css';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const minutes = readingTime(post.body);
+---
+
+<Base
+  title={post.data.title.toLowerCase()}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.date}
+  noindex={post.data.draft}
+>
+  <article>
+    <header data-tree-avoid>
+      <p class="back">
+        <a href="/writing">← back</a>
+      </p>
+      <h1>
+        <span class="accent" aria-hidden="true">
+          *
+        </span>
+        {post.data.title}
+      </h1>
+      <p class="meta">
+        <time datetime={isoDate(post.data.date)}>
+          {formatDate(post.data.date)}
+        </time>
+        <span aria-hidden="true"> · </span>
+        {minutes} min read
+        {post.data.draft && <span> · draft</span>}
+      </p>
+    </header>
+    <div class="prose" data-tree-avoid="soft">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<script>
+  // Wrap each Shiki block and add a small "copy" button.
+  for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre')) {
+    const wrap = document.createElement('div');
+    wrap.className = 'code-block';
+    pre.replaceWith(wrap);
+    wrap.append(pre);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-button';
+    btn.textContent = 'copy';
+    btn.setAttribute('aria-label', 'copy code to clipboard');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+        btn.textContent = 'copied';
+      } catch {
+        btn.textContent = 'failed';
+      }
+      btn.dataset.copied = '';
+      setTimeout(() => {
+        btn.textContent = 'copy';
+        delete btn.dataset.copied;
+      }, 1600);
+    });
+    wrap.append(btn);
+  }
+</script>
+
+<style>
+  header {
+    margin-bottom: 40px;
+  }
+
+  .back {
+    margin-bottom: 32px;
+    font-size: var(--text-sm);
+  }
+
+  .back a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    color: var(--accent);
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  h1 .accent {
+    margin-right: 0.3ch;
+  }
+
+  .meta {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

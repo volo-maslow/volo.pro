@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+---
+
+<Base title="writing" description="notes and essays by volo maslow.">
+  <header class="intro" data-tree-avoid>
+    <h1>
+      <span class="accent" aria-hidden="true">
+        *
+      </span>{' '}
+      writing
+    </h1>
+    <p class="muted">
+      notes on building products, mostly technical. also as{' '}
+      <a href="/rss.xml">rss</a>.
+    </p>
+  </header>
+  <PostList posts={posts} />
+</Base>
+
+<style>
+  .intro {
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h1 .accent {
+    margin-right: 0.4ch;
+  }
+
+  .intro p {
+    margin-top: 8px;
+  }
+</style>

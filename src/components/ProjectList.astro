@@ -1,0 +1,92 @@
+---
+import type { Project } from '../data/projects';
+
+interface Props {
+  projects: Project[];
+  /** Show tech pills (projects page). */
+  detailed?: boolean;
+}
+
+const { projects, detailed = false } = Astro.props;
+---
+
+<ul class="projects" data-tree-avoid>
+  {projects.map((p) => (
+    <li>
+      <div class="head">
+        <span class="name">
+          {p.url ? (
+            <a href={p.url}>
+              {p.name}
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          ) : (
+            p.name
+          )}
+        </span>
+        <span class="meta tabular">
+          {p.role} · {p.date}
+        </span>
+      </div>
+      <p class="summary">{p.summary}</p>
+      {detailed && p.tech.length > 0 && (
+        <ul class="tech" aria-label="built with">
+          {p.tech.map((t) => (
+            <li>{t}</li>
+          ))}
+        </ul>
+      )}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .projects {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects > li + li {
+    margin-top: 20px;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 16px;
+  }
+
+  .name {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .name a {
+    text-decoration: none;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tech li {
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: 20px;
+  }
+</style>

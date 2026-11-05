@@ -1,0 +1,49 @@
+/* volo.pro design tokens (docs/DESIGN.md). Light by default, dark via prefers-color-scheme. */
+:root {
+  --surface: #f5f4f0;
+  --surface-2: #eeede9;
+  --ink: #1a1917;
+  --text: #3d3b37;
+  --muted: #787774;
+  --border: #d5d3ce;
+  --accent: #d9480f;
+  /* r,g,b consumed by the dotted tree (src/components/tree/runtime.ts readInk). */
+  --tree-ink: 26, 25, 23;
+
+  --font-mono:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-body: 15px;
+  --leading: 1.7;
+  --text-sm: 13px;
+  --text-xs: 12px;
+  --text-h1: 32px;
+  --text-h2: 14px;
+
+  --column: 680px;
+  /* Space reserved right of the column for the tree crown on wide screens. */
+  --tree-lane: 440px;
+  --gutter: 20px;
+  --section-gap: 40px;
+  --radius: 6px;
+  --ease: 150ms ease;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #141312;
+    --surface-2: #1c1b19;
+    --ink: #eceae5;
+    --text: #c9c6bf;
+    --muted: #86837d;
+    --border: #2b2a27;
+    --accent: #ff8a3d;
+    --tree-ink: 236, 234, 229;
+  }
+}

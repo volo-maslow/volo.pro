@@ -1,0 +1,69 @@
+---
+import type { Role } from '../data/work';
+import { formatRange } from '../lib/format';
+
+interface Props {
+  roles: Role[];
+}
+
+const { roles } = Astro.props;
+---
+
+<ul class="roles" data-tree-avoid>
+  {roles.map((r) => (
+    <li>
+      <div class="head">
+        <span class="company">
+          {r.url ? (
+            <a href={r.url}>
+              {r.company}
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          ) : (
+            r.company
+          )}
+        </span>
+        <span class="dates tabular">{formatRange(r.start, r.end)}</span>
+      </div>
+      <p class="title">{r.title}</p>
+      <p class="summary">{r.summary}</p>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .roles {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li {
+    margin-top: 20px;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 16px;
+  }
+
+  .company {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .company a {
+    text-decoration: none;
+  }
+
+  .dates,
+  .title {
+    color: var(--muted);
+  }
+
+  .title {
+    font-size: var(--text-sm);
+  }
+</style>

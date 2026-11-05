@@ -1,0 +1,66 @@
+---
+interface Props {
+  title: string;
+  /** Optional trailing link, e.g. "all writing ↗". */
+  more?: { href: string; label: string };
+  id?: string;
+}
+
+const {
+  title,
+  more,
+  id = title.toLowerCase().replace(/\s+/g, '-'),
+} = Astro.props;
+---
+
+<section class="section" aria-labelledby={id}>
+  <h2 id={id}>
+    <span class="star" aria-hidden="true">
+      *
+    </span>
+    {title.toLowerCase()}
+  </h2>
+  <slot />
+  {more && (
+    <p class="more" data-tree-avoid>
+      <a href={more.href}>{more.label}</a>
+    </p>
+  )}
+</section>
+
+<style>
+  .section {
+    margin-top: var(--section-gap);
+    padding-top: var(--section-gap);
+    border-top: 1px solid var(--border);
+  }
+
+  h2 {
+    margin-bottom: 16px;
+    color: var(--ink);
+    font-size: var(--text-h2);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .star {
+    margin-right: 0.6ch;
+    color: var(--accent);
+  }
+
+  .more {
+    margin-top: 16px;
+    font-size: var(--text-sm);
+  }
+
+  .more a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .more a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+</style>

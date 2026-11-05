@@ -1,0 +1,40 @@
+---
+import { site } from '../data/site';
+import { elsewhere } from '../data/elsewhere';
+
+const shown = ['email', 'github', 'linkedin', 'rss'];
+const links = elsewhere.filter((l) => shown.includes(l.label));
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" data-tree-avoid>
+  <p>
+    {links.map((l, i) => (
+      <>
+        {i > 0 && <span aria-hidden="true"> · </span>}
+        <a href={l.href}>{l.label}</a>
+      </>
+    ))}
+  </p>
+  <p>
+    © {year} {site.name.toLowerCase()}
+  </p>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+
+  a {
+    text-decoration: none;
+  }
+</style>

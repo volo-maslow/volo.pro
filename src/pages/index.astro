@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import PostList from '../components/PostList.astro';
+import WorkList from '../components/WorkList.astro';
+import ProjectList from '../components/ProjectList.astro';
+import { site } from '../data/site';
+import { work } from '../data/work';
+import { projects } from '../data/projects';
+import { elsewhere } from '../data/elsewhere';
+import { getPosts } from '../lib/posts';
+
+const posts = (await getPosts()).slice(0, 4);
+---
+
+<Base fullTree>
+  <header class="hero">
+    <h1 data-tree-avoid>{site.name.toLowerCase()}</h1>
+    <p class="tagline" data-tree-avoid>
+      {site.tagline}
+    </p>
+    <div class="bio" data-tree-avoid>
+      <p>{site.bio.join(' ')}</p>
+    </div>
+  </header>
+
+  <Section title="writing" more={{ href: '/writing', label: 'all writing ↗' }}>
+    <PostList posts={posts} />
+  </Section>
+
+  <Section title="work" more={{ href: '/work', label: 'all work ↗' }}>
+    <WorkList roles={work.slice(0, 3)} />
+  </Section>
+
+  <Section
+    title="projects"
+    more={{ href: '/projects', label: 'all projects ↗' }}
+  >
+    <ProjectList projects={projects.slice(0, 3)} />
+  </Section>
+
+  <Section title="elsewhere">
+    <ul class="elsewhere" data-tree-avoid>
+      {elsewhere.map((l) => (
+        <li>
+          <span class="label">{l.label}</span>
+          <a href={l.href}>{l.detail ?? l.href}</a>
+        </li>
+      ))}
+    </ul>
+  </Section>
+</Base>
+
+<style>
+  h1 {
+    color: var(--ink);
+    font-size: var(--text-h1);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .tagline {
+    margin-top: 6px;
+    color: var(--muted);
+  }
+
+  .bio {
+    margin-top: 24px;
+    max-width: 60ch;
+  }
+
+  .elsewhere {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .elsewhere li {
+    display: grid;
+    grid-template-columns: 112px 1fr;
+    gap: 0 16px;
+    padding-block: 2px;
+  }
+
+  .elsewhere .label {
+    color: var(--muted);
+  }
+
+  .elsewhere a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .elsewhere a:hover {
+    color: var(--accent);
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectList from '../components/ProjectList.astro';
+import { projects } from '../data/projects';
+---
+
+<Base title="projects" description="things volo maslow has built.">
+  <header class="intro" data-tree-avoid>
+    <h1>
+      <span class="accent" aria-hidden="true">
+        *
+      </span>{' '}
+      projects
+    </h1>
+    <p class="muted">things i've built, mostly for myself first.</p>
+  </header>
+  <ProjectList projects={projects} detailed />
+</Base>
+
+<style>
+  .intro {
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h1 .accent {
+    margin-right: 0.4ch;
+  }
+
+  .intro p {
+    margin-top: 8px;
+  }
+</style>

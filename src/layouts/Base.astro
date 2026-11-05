@@ -1,0 +1,133 @@
+---
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import DotTree from '../components/tree/DotTree.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Page title; the site name is appended unless this is the home page. */
+  title?: string;
+  description?: string;
+  /** og:type, "article" for posts. */
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  noindex?: boolean;
+  /** Home page gets the full tree; inner pages a quieter one. */
+  fullTree?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  type = 'website',
+  publishedTime,
+  noindex = false,
+  fullTree = false,
+} = Astro.props;
+
+const siteName = site.name.toLowerCase();
+const fullTitle = title ? `${title} · ${siteName}` : siteName;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.fullName} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title ?? siteName} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    {publishedTime && (
+      <meta
+        property="article:published_time"
+        content={publishedTime.toISOString()}
+      />
+    )}
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="theme-color"
+      content="#f5f4f0"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#141312"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteName} · writing`}
+      href={new URL('/rss.xml', Astro.site ?? site.url).href}
+    />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      skip to content
+    </a>
+    <DotTree class={fullTree ? undefined : 'dot-tree--quiet'} />
+    <div class="page">
+      <Nav />
+      <main id="main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style>
+  .page {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    max-width: calc(var(--column) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding: 48px var(--gutter);
+  }
+
+  /*
+   * Wide screens: the tree root sits at 0.76·vw (tree/layout.ts) and its crown
+   * spans roughly ±0.27·H around it. Centre column + tree lane as one group, so
+   * the column moves left of centre and the crown reads through the right margin.
+   */
+  @media (min-width: 1024px) {
+    .page {
+      margin-left: max(
+        0px,
+        calc((100vw - var(--column) - 2 * var(--gutter) - var(--tree-lane)) / 2)
+      );
+      margin-right: auto;
+    }
+  }
+
+  main {
+    flex: 1;
+    padding-top: 56px;
+  }
+
+  /* Inner pages: same tree, quieter. The runtime fades the canvas, not the host. */
+  :global(.dot-tree--quiet) {
+    opacity: 0.6;
+  }
+</style>

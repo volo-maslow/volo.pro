@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import WorkList from '../components/WorkList.astro';
+import { work } from '../data/work';
+---
+
+<Base title="work" description="where volo maslow has worked, and on what.">
+  <header class="intro" data-tree-avoid>
+    <h1>
+      <span class="accent" aria-hidden="true">
+        *
+      </span>{' '}
+      work
+    </h1>
+    <p class="muted">
+      roles, newest first. for a project together,{' '}
+      <a href="mailto:hello@volo.pro">write to me</a>.
+    </p>
+  </header>
+  <WorkList roles={work} />
+</Base>
+
+<style>
+  .intro {
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h1 .accent {
+    margin-right: 0.4ch;
+  }
+
+  .intro p {
+    margin-top: 8px;
+  }
+</style>

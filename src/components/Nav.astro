@@ -1,0 +1,94 @@
+---
+const items = [
+  { key: 'h', label: 'home', href: '/' },
+  { key: 'w', label: 'writing', href: '/writing' },
+  { key: 'p', label: 'projects', href: '/projects' },
+  { key: 'n', label: 'now', href: '/now' },
+] as const;
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string): boolean =>
+  href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
+---
+
+<nav class="nav" aria-label="primary" data-tree-avoid>
+  <ul>
+    {items.map(({ key, label, href }) => (
+      <li>
+        <a
+          href={href}
+          data-shortcut={key}
+          aria-keyshortcuts={key}
+          aria-current={isCurrent(href) ? 'page' : undefined}
+        >
+          <span class="hint" aria-hidden="true">
+            [{key}]
+          </span>
+          <span class="label">{label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<script is:inline>
+  // Global single-key shortcuts: [h] home, [w] writing, [p] projects, [n] now.
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.repeat) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    const t = e.target;
+    if (
+      t instanceof HTMLElement &&
+      (t.isContentEditable || t.closest('input, textarea, select'))
+    )
+      return;
+    const link = document.querySelector(
+      'a[data-shortcut="' + e.key.toLowerCase() + '"]',
+    );
+    if (!(link instanceof HTMLAnchorElement) || e.key.length !== 1) return;
+    e.preventDefault();
+    window.location.assign(link.href);
+  });
+</script>
+
+<style>
+  .nav {
+    font-size: var(--text-sm);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  a:hover,
+  a[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  a:hover .hint {
+    color: var(--accent);
+  }
+
+  .hint {
+    display: none;
+    margin-right: 0.6ch;
+    color: var(--muted);
+    transition: color var(--ease);
+  }
+
+  @media (min-width: 640px) {
+    .hint {
+      display: inline;
+    }
+  }
+</style>
