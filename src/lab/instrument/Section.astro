@@ -1,0 +1,119 @@
+---
+/** Numbered section: Doto numeral and mono title on the rail, content to the right. */
+interface Props {
+  n: number;
+  title: string;
+  more?: { href: string; label: string };
+}
+
+const { n, title, more } = Astro.props;
+const id = `s-${title.toLowerCase().replace(/\s+/g, '-')}`;
+const num = String(n).padStart(2, '0');
+---
+
+<section class="sec" aria-labelledby={id}>
+  <div class="rail" data-tree-avoid>
+    <span class="num" aria-hidden="true">{num}</span>
+    <h2 id={id}>{title}</h2>
+  </div>
+  <div class="body">
+    <slot />
+    {more && (
+      <p class="more" data-tree-avoid>
+        <a href={more.href}>
+          {more.label}
+          <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    )}
+  </div>
+</section>
+
+<style>
+  .sec {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    gap: 0 24px;
+    margin-top: 72px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-self: start;
+  }
+
+  .num {
+    font-family: var(--dots);
+    font-size: 30px;
+    font-weight: 900;
+    font-variation-settings: 'ROND' 100;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+
+  h2 {
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .body {
+    padding-top: 2px;
+  }
+
+  .more {
+    margin-top: 22px;
+    font-size: var(--fs-sm);
+  }
+
+  .more a {
+    display: inline-flex;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .more a span {
+    transition: transform var(--ease);
+  }
+
+  .more a:hover {
+    color: var(--ink);
+  }
+
+  .more a:hover span {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 639px) {
+    .sec {
+      grid-template-columns: 1fr;
+      margin-top: 56px;
+      padding-top: 18px;
+    }
+
+    .rail {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .num {
+      font-size: 24px;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .num {
+      font-weight: 800;
+    }
+  }
+</style>

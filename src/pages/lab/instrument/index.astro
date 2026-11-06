@@ -1,0 +1,326 @@
+---
+import Shell from '../../../lab/instrument/Shell.astro';
+import Section from '../../../lab/instrument/Section.astro';
+import { dotDate, range, postHref } from '../../../lab/instrument/format';
+import { site } from '../../../data/site';
+import { work } from '../../../data/work';
+import { projects } from '../../../data/projects';
+import { elsewhere } from '../../../data/elsewhere';
+import { getPosts } from '../../../lib/posts';
+
+const posts = (await getPosts()).slice(0, 4);
+const current = work.filter((r) => r.start && !r.end);
+const [city, country] = site.tagline.split('·')[1]!.split(',').map((s) => s.trim());
+---
+
+<Shell fullTree>
+  <header class="hero">
+    <h1 class="name" data-tree-avoid>{site.name.toLowerCase()}</h1>
+    <p class="lede" data-tree-avoid>{site.bio[0]}</p>
+
+    <dl class="spec" data-tree-avoid>
+      <div class="row">
+        <dt>discipline</dt>
+        <dd>engineer, end to end</dd>
+      </div>
+      <div class="row">
+        <dt>based in</dt>
+        <dd>{city}, {country}</dd>
+      </div>
+      <div class="row">
+        <dt>
+          <span class="signal signal--live" aria-hidden="true"></span>
+          currently
+        </dt>
+        <dd>
+          {current.map((r) => (
+            <span class="line">
+              {r.title},{' '}
+              {r.url ? <a href={r.url}>{r.company}</a> : r.company}
+            </span>
+          ))}
+        </dd>
+      </div>
+      <div class="row">
+        <dt>suited to</dt>
+        <dd>founders and ctos who need to ship. hands-on, close to the code.</dd>
+      </div>
+      <div class="row">
+        <dt>contact</dt>
+        <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+      </div>
+    </dl>
+  </header>
+
+  <Section n={1} title="writing" more={{ href: '/writing', label: 'all writing' }}>
+    {posts.length === 0 ? (
+      <p class="quiet" data-tree-avoid>nothing here yet.</p>
+    ) : (
+      <ul class="rows posts" data-tree-avoid>
+        {posts.map((p) => (
+          <li>
+            <a class="mark" href={postHref(p.id)}>
+              <time datetime={p.data.date.toISOString().slice(0, 10)}>
+                {dotDate(p.data.date)}
+              </time>
+              <span class="t">
+                {p.data.title.toLowerCase()}
+                {p.data.draft && <span class="tag">draft</span>}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </Section>
+
+  <Section n={2} title="work" more={{ href: '/work', label: 'all work' }}>
+    <ul class="rows entries" data-tree-avoid>
+      {work.slice(0, 3).map((r) => (
+        <li>
+          <div class="head">
+            {r.url ? (
+              <a class="mark name-link" href={r.url}>
+                {r.company}
+                <span class="ext" aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              <span class="name-link">{r.company}</span>
+            )}
+            <span class="meta tnum">{range(r.start, r.end)}</span>
+          </div>
+          <p class="role">{r.title}</p>
+          <p class="sum">{r.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section n={3} title="projects" more={{ href: '/projects', label: 'all projects' }}>
+    <ul class="rows entries" data-tree-avoid>
+      {projects.slice(0, 3).map((p) => (
+        <li>
+          <div class="head">
+            {p.url ? (
+              <a class="mark name-link" href={p.url}>
+                {p.name}
+                <span class="ext" aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              <span class="name-link">{p.name}</span>
+            )}
+            <span class="meta tnum">{p.role} · {p.date}</span>
+          </div>
+          <p class="sum">{p.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section n={4} title="elsewhere">
+    <dl class="spec spec--flat" data-tree-avoid>
+      {elsewhere.map((l) => (
+        <div class="row">
+          <dt>{l.label}</dt>
+          <dd>
+            <a class="mark" href={l.href}>{l.detail ?? l.href}</a>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+</Shell>
+
+<style>
+  .hero {
+    padding-top: clamp(64px, 12vh, 120px);
+  }
+
+  /*
+   * Doto's dot pitch is 0.1em. At 60px that is 6px, the desktop tree's pitch
+   * (tree/layout.ts S); at 50px it is 5px, the mobile tree's. Same dots, same grid.
+   */
+  .name {
+    margin-left: -0.03em;
+    color: var(--ink);
+    font-family: var(--dots);
+    font-size: 60px;
+    font-weight: 700;
+    font-variation-settings: 'ROND' 100;
+    line-height: 0.9;
+    letter-spacing: 0;
+  }
+
+  .lede {
+    max-width: 34ch;
+    margin-top: 36px;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  .hero .spec {
+    margin-top: 48px;
+  }
+
+  /* ── Lists ──────────────────────────────────────────────────────────────── */
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Hover / focus marker: the signal dot, hung left of the row. */
+  .mark {
+    position: relative;
+    text-decoration: none;
+  }
+
+  .mark::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -17px;
+    width: 7px;
+    height: 7px;
+    margin-top: -3.5px;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 8px 1px var(--signal-glow);
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      opacity var(--ease),
+      transform var(--ease);
+  }
+
+  .mark:hover::before,
+  .mark:focus-visible::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .mark:focus-visible {
+    outline: none;
+  }
+
+  .mark:focus-visible .t,
+  .mark.name-link:focus-visible,
+  .spec dd .mark:focus-visible {
+    text-decoration-line: underline;
+    text-decoration-color: var(--signal);
+  }
+
+  .posts li + li {
+    margin-top: 2px;
+  }
+
+  .posts a {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 0 20px;
+    padding-block: 5px;
+    color: var(--ink);
+  }
+
+  .posts time {
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    line-height: inherit;
+  }
+
+  .posts .t {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: transparent;
+    transition: text-decoration-color var(--ease);
+  }
+
+  .posts a:hover .t {
+    text-decoration-color: var(--ink);
+  }
+
+  .tag {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 0 6px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 16px;
+    vertical-align: 2px;
+    letter-spacing: 0.04em;
+  }
+
+  .entries li + li {
+    margin-top: 26px;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0 16px;
+  }
+
+  .name-link {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .ext {
+    margin-left: 6px;
+    color: var(--muted);
+    font-weight: 400;
+    transition: color var(--ease);
+  }
+
+  .name-link:hover .ext {
+    color: var(--ink);
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: var(--fs-sm);
+  }
+
+  .role {
+    color: var(--muted);
+    font-size: var(--fs-sm);
+  }
+
+  .sum {
+    max-width: 52ch;
+    margin-top: 6px;
+    color: var(--text);
+  }
+
+  .quiet {
+    color: var(--muted);
+  }
+
+  @media (max-width: 639px) {
+    .lede {
+      font-size: 16px;
+    }
+
+    .name {
+      font-size: 50px;
+    }
+
+    .posts a {
+      grid-template-columns: 1fr;
+      padding-block: 7px;
+    }
+
+    .mark::before {
+      left: -14px;
+    }
+  }
+
+</style>

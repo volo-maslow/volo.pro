@@ -1,0 +1,25 @@
+---
+/**
+ * Dot-matrix numerals. Doto's own "." and ":" sit awkwardly at text sizes, so
+ * separators are drawn as a single round dot that matches the digit dots.
+ */
+interface Props {
+  value: string;
+  class?: string;
+}
+
+const { value, class: className } = Astro.props;
+const parts = value.split(/([.:])/).filter(Boolean);
+---
+
+<span class:list={['num', className]}>
+  {parts.map((p) =>
+    p === '.' || p === ':' ? (
+      <span class:list={['sep', p === ':' && 'sep--colon']}>
+        <span class="sep-text">{p}</span>
+      </span>
+    ) : (
+      p
+    ),
+  )}
+</span>

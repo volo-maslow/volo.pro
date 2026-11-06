@@ -1,0 +1,246 @@
+/* Article body for the instrument direction. h2s are numbered on the rail in Doto. */
+.prose {
+  max-width: 62ch;
+  color: var(--text);
+  line-height: 1.85;
+  overflow-wrap: break-word;
+  counter-reset: sec;
+}
+
+.prose > * + * {
+  margin-top: 1.3em;
+}
+
+.prose > p:first-child {
+  color: var(--ink);
+}
+
+.prose h2,
+.prose h3 {
+  position: relative;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.45;
+  scroll-margin-top: 32px;
+}
+
+.prose h2 {
+  counter-increment: sec;
+  margin-top: 3.4em;
+  /* The rule runs across the rail too, like the index's section rules. */
+  margin-left: calc(-1 * (var(--rail) + 24px));
+  padding-top: 18px;
+  padding-left: calc(var(--rail) + 24px);
+  border-top: 1px solid var(--rule);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+/* Section numerals hang on the rail, the same as the index's 01, 02... */
+.prose h2::before {
+  content: counter(sec, decimal-leading-zero);
+  position: absolute;
+  top: 18px;
+  left: 0;
+  color: var(--ink);
+  font-family: var(--dots);
+  font-size: 30px;
+  font-weight: 900;
+  font-variation-settings: 'ROND' 100;
+  line-height: 1;
+}
+
+.prose h3 {
+  margin-top: 2.2em;
+  font-size: 14px;
+}
+
+.prose .heading-anchor {
+  margin-left: 1ch;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity var(--ease);
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.prose a {
+  color: var(--ink);
+}
+
+.prose strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 3ch;
+}
+
+.prose ul {
+  list-style: none;
+}
+
+.prose ul > li {
+  position: relative;
+}
+
+/* List bullets are single dots, on the tree's ink. */
+.prose ul > li::before {
+  content: '';
+  position: absolute;
+  top: 0.8em;
+  left: -2.2ch;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.prose ol > li::marker {
+  color: var(--muted);
+}
+
+.prose li + li {
+  margin-top: 0.6em;
+}
+
+.prose blockquote {
+  padding-left: 2ch;
+  border-left: 1px solid var(--rule-strong);
+  color: var(--muted);
+}
+
+.prose hr {
+  height: 2px;
+  border: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--rule-strong) 0.9px,
+    transparent 1.15px
+  );
+  background-size: var(--pitch) 2px;
+  margin-block: 2.6em;
+}
+
+.prose :not(pre) > code {
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-size: 0.92em;
+}
+
+.prose .code-block {
+  position: relative;
+}
+
+.prose pre {
+  padding: 16px 18px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background-color: var(--paper-2) !important;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+.prose pre code {
+  font-family: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .prose .astro-code,
+  .prose .astro-code span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+  }
+
+  .prose h2::before {
+    font-weight: 800;
+  }
+}
+
+.prose .copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--muted);
+  font: 500 10px/18px var(--mono);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--ease),
+    color var(--ease);
+}
+
+.prose .code-block:hover .copy-button,
+.prose .copy-button:focus-visible,
+.prose .copy-button[data-copied] {
+  opacity: 1;
+}
+
+.prose .copy-button:hover {
+  color: var(--ink);
+}
+
+@media (hover: none) {
+  .prose .copy-button {
+    opacity: 1;
+  }
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 639px) {
+  .prose h2 {
+    margin-left: 0;
+    padding-top: 52px;
+    padding-left: 0;
+  }
+
+  .prose h2::before {
+    top: 14px;
+    left: 0;
+    font-size: 24px;
+  }
+}

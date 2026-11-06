@@ -1,0 +1,356 @@
+/*
+ * apothecary — tokens and document styles for /lab/apothecary.
+ * Light: parchment and brown-black ink. Dark: an amber bottle in low light.
+ */
+:root {
+  --paper: #f6f5e8;
+  --paper-2: #efecdb;
+  --ink: #27231a;
+  --text: #3d382c;
+  --muted: #6b6753;
+  --rule: #d9d4bd;
+  --dot: #b9b298;
+  --accent: #8a5523;
+  --select: #e6d7b8;
+  --tree-ink: 104, 76, 44;
+
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+
+  --body: 14.5px;
+  --small: 12.5px;
+  --tiny: 11.5px;
+  --leading: 1.75;
+
+  --column: 680px;
+  --tree-lane: 440px;
+  --gutter: 22px;
+  --label: 15ch;
+  --ease: 220ms ease;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 44px;
+    --label: 20ch;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17110b;
+    --paper-2: #21180f;
+    --ink: #f0e6d0;
+    --text: #d4c8ae;
+    --muted: #a1957b;
+    --rule: #3a2f22;
+    --dot: #5a4a35;
+    --accent: #d6a15e;
+    --select: #4a361d;
+    --tree-ink: 214, 160, 94;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote,
+pre {
+  margin: 0;
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--paper);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--body);
+  line-height: var(--leading);
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--ease);
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+time,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--select);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.ap-skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ap-skip:focus {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: var(--small);
+}
+
+/* ---------- tree ---------- */
+
+.ap-tree {
+  opacity: 0.85;
+}
+
+.ap-tree--quiet {
+  opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ap-tree {
+    opacity: 0.75;
+  }
+
+  .ap-tree--quiet {
+    opacity: 0.5;
+  }
+}
+
+/* ---------- page frame ---------- */
+
+.ap-page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: calc(var(--column) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: 40px var(--gutter) 40px;
+}
+
+/* Column + tree lane centred as one group: the crown reads through the right margin. */
+@media (min-width: 1024px) {
+  .ap-page {
+    margin-left: max(
+      0px,
+      calc((100vw - var(--column) - 2 * var(--gutter) - var(--tree-lane)) / 2)
+    );
+    margin-right: auto;
+    padding-top: 56px;
+  }
+}
+
+.fonts-loading .ap-page,
+.fonts-loading .ap-skip {
+  visibility: hidden;
+}
+
+main {
+  flex: 1;
+}
+
+/* masthead: a file path on the left, keyed nav on the right */
+.ap-mast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 32px;
+  font-size: var(--small);
+}
+
+.ap-crumbs {
+  color: var(--ink);
+}
+
+.ap-crumbs a:hover {
+  color: var(--accent);
+}
+
+.ap-crumbs [aria-current] {
+  color: var(--muted);
+}
+
+.ap-slash {
+  margin-inline: 0.7ch;
+  color: var(--dot);
+}
+
+.ap-mast ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-mast nav a {
+  color: var(--muted);
+}
+
+.ap-mast nav a:hover,
+.ap-mast nav a[aria-current='page'] {
+  color: var(--ink);
+}
+
+.ap-key {
+  display: none;
+  margin-right: 0.7ch;
+  color: var(--muted);
+  transition: color var(--ease);
+}
+
+.ap-key::before {
+  content: '[';
+  color: var(--dot);
+}
+
+.ap-key::after {
+  content: ']';
+  color: var(--dot);
+}
+
+.ap-mast nav a:hover .ap-key,
+.ap-mast nav a[aria-current='page'] .ap-key {
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .ap-key {
+    display: inline;
+  }
+}
+
+/* footer */
+.ap-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+  margin-top: 128px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: var(--tiny);
+  letter-spacing: 0.01em;
+}
+
+/* ---------- shared pieces ---------- */
+
+/* A rule made of dots, on the same 6px pitch as the tree. */
+.ap-dots {
+  height: 3px;
+  background-image: radial-gradient(
+    circle at 1.5px 1.5px,
+    var(--dot) 0.85px,
+    transparent 1.15px
+  );
+  background-size: 6px 3px;
+  background-repeat: repeat-x;
+}
+
+/* Label / value spec sheet. */
+.ap-spec {
+  display: grid;
+  grid-template-columns: var(--label) 1fr;
+  margin: 0;
+}
+
+.ap-spec > div {
+  display: contents;
+}
+
+.ap-spec dt,
+.ap-spec dd {
+  padding-block: 11px 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.ap-spec > div:last-child dt,
+.ap-spec > div:last-child dd {
+  border-bottom: 1px solid var(--rule);
+}
+
+.ap-spec dt {
+  padding-right: 2ch;
+  color: var(--muted);
+}
+
+.ap-spec dd {
+  color: var(--ink);
+}
+
+.ap-spec dd .sub {
+  display: block;
+  color: var(--muted);
+}
+
+@media (max-width: 479px) {
+  :root {
+    --label: 13ch;
+  }
+
+  .ap-spec {
+    font-size: 13.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

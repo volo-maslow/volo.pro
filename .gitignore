@@ -37,3 +37,6 @@ venv/
 *.swp
 .DS_Store
 Thumbs.db
+
+# bb workflow scripts (local only)
+.bb/

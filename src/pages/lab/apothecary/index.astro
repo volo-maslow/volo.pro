@@ -1,0 +1,261 @@
+---
+import Shell from '../../../lab/apothecary/Shell.astro';
+import Section from '../../../lab/apothecary/Section.astro';
+import { profile, statement } from '../../../lab/apothecary/profile';
+import { site } from '../../../data/site';
+import { work } from '../../../data/work';
+import { projects } from '../../../data/projects';
+import { elsewhere } from '../../../data/elsewhere';
+import { getPosts } from '../../../lib/posts';
+import { isoDate, formatRange } from '../../../lib/format';
+import { readingTime } from '../../../lib/readingTime';
+
+const posts = (await getPosts()).slice(0, 4);
+const roles = work.slice(0, 3);
+const shownProjects = projects.slice(0, 3);
+const postHref = (id: string) =>
+  id === 'colophon' ? '/lab/apothecary/post' : `/writing/${id}`;
+---
+
+<Shell crumbs={[{ label: 'index' }]}>
+  <header class="hero">
+    <div class="who" data-tree-avoid>
+      <h1>{site.name.toLowerCase()}</h1>
+      <p class="tagline">{site.tagline}</p>
+    </div>
+    <p class="statement" data-tree-avoid>{statement}</p>
+  </header>
+
+  <Section n={1} title="profile">
+    <dl class="ap-spec" data-tree-avoid>
+      {profile.map((row) => (
+        <div>
+          <dt>{row.label}</dt>
+          <dd>
+            {row.value.map((line) =>
+              row.href ? (
+                <a class="line" href={row.href}>
+                  {line}
+                </a>
+              ) : (
+                <span class="line">{line}</span>
+              ),
+            )}
+            {row.sub && <span class="sub">{row.sub}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+
+  <Section n={2} title="writing" more={{ href: '/writing', label: 'all writing' }}>
+    {posts.length === 0 ? (
+      <p class="empty" data-tree-avoid>nothing here yet.</p>
+    ) : (
+      <ol class="entries" data-tree-avoid>
+        {posts.map((post) => (
+          <li>
+            <time class="aside" datetime={isoDate(post.data.date)}>
+              {isoDate(post.data.date)}
+            </time>
+            <div class="body">
+              <a class="name" href={postHref(post.id)}>
+                {post.data.title.toLowerCase()}
+              </a>
+              <p class="note">{post.data.description}</p>
+            </div>
+            <span class="meta tabular">
+              {post.data.draft ? 'draft' : `${readingTime(post.body)} min`}
+            </span>
+          </li>
+        ))}
+      </ol>
+    )}
+  </Section>
+
+  <Section n={3} title="work" more={{ href: '/work', label: 'all work' }}>
+    <ol class="entries" data-tree-avoid>
+      {roles.map((r) => (
+        <li>
+          <span class="aside tabular">{formatRange(r.start, r.end)}</span>
+          <div class="body">
+            {r.url ? (
+              <a class="name" href={r.url}>
+                {r.company}
+                <span class="arrow" aria-hidden="true"> ↗</span>
+              </a>
+            ) : (
+              <span class="name">{r.company}</span>
+            )}
+            <span class="role">{r.title}</span>
+            <p class="note">{r.summary}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <Section n={4} title="projects" more={{ href: '/projects', label: 'all projects' }}>
+    <ol class="entries" data-tree-avoid>
+      {shownProjects.map((p) => (
+        <li>
+          <span class="aside tabular">{p.date}</span>
+          <div class="body">
+            {p.url ? (
+              <a class="name" href={p.url}>
+                {p.name}
+                <span class="arrow" aria-hidden="true"> ↗</span>
+              </a>
+            ) : (
+              <span class="name">{p.name}</span>
+            )}
+            <span class="role">{p.role}</span>
+            <p class="note">{p.summary}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <Section n={5} title="elsewhere">
+    <dl class="ap-spec" data-tree-avoid>
+      {elsewhere.map((l) => (
+        <div>
+          <dt>{l.label}</dt>
+          <dd>
+            <a class="line" href={l.href}>
+              {l.detail ?? l.href}
+            </a>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+</Shell>
+
+<style>
+  .hero {
+    padding-top: 128px;
+  }
+
+  @media (max-width: 639px) {
+    .hero {
+      padding-top: 88px;
+    }
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .tagline {
+    color: var(--muted);
+  }
+
+  .statement {
+    max-width: 17em;
+    margin-top: 40px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(30px, 4.2vw, 44px);
+    font-weight: 300;
+    font-optical-sizing: auto;
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+
+  .line {
+    display: block;
+  }
+
+  dd a.line {
+    width: fit-content;
+  }
+
+  /* entries: aside (date / years) · name, role, note · meta */
+  .entries {
+    padding: 0;
+    list-style: none;
+  }
+
+  .entries li {
+    display: grid;
+    grid-template-columns: var(--label) 1fr auto;
+    padding-block: 14px 16px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .entries li:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .aside,
+  .meta,
+  .role {
+    color: var(--muted);
+  }
+
+  .meta {
+    padding-left: 2ch;
+    font-size: var(--small);
+  }
+
+  .name {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .arrow {
+    color: var(--muted);
+    font-weight: 400;
+    transition: color var(--ease);
+  }
+
+  a.name:hover .arrow {
+    color: var(--accent);
+  }
+
+  .role {
+    margin-left: 1.5ch;
+  }
+
+  .role::before {
+    content: '· ';
+    color: var(--dot);
+  }
+
+  .note {
+    max-width: 52ch;
+    margin-top: 2px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .empty {
+    color: var(--muted);
+  }
+
+  @media (max-width: 479px) {
+    .entries li {
+      grid-template-columns: 1fr auto;
+    }
+
+    .entries .aside {
+      grid-column: 1 / -1;
+      font-size: var(--small);
+    }
+
+    .role {
+      display: block;
+      margin-left: 0;
+    }
+
+    .role::before {
+      content: none;
+    }
+  }
+</style>

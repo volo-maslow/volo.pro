@@ -1,0 +1,86 @@
+---
+/** A numbered section: "01  profile ··········· all writing". */
+interface Props {
+  n: number;
+  title: string;
+  more?: { href: string; label: string };
+}
+
+const { n, title, more } = Astro.props;
+const id = `s-${title.replace(/\s+/g, '-')}`;
+const no = String(n).padStart(2, '0');
+---
+
+<section class="section" aria-labelledby={id}>
+  <div class="head" data-tree-avoid>
+    <h2 id={id}>
+      <span class="no tabular" aria-hidden="true">{no}</span>
+      {title}
+    </h2>
+    <span class="lead ap-dots" aria-hidden="true"></span>
+    {more && (
+      <a class="more" href={more.href}>
+        {more.label}
+        <span aria-hidden="true"> →</span>
+      </a>
+    )}
+  </div>
+  <slot />
+</section>
+
+<style>
+  .section {
+    margin-top: 104px;
+  }
+
+  @media (max-width: 639px) {
+    .section {
+      margin-top: 80px;
+    }
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5ch;
+    margin-bottom: 26px;
+  }
+
+  h2 {
+    flex: none;
+    color: var(--ink);
+    font-size: inherit;
+    font-weight: 500;
+  }
+
+  .no {
+    display: inline-block;
+    width: var(--label);
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  @media (max-width: 479px) {
+    .no {
+      width: auto;
+      margin-right: 2ch;
+    }
+  }
+
+  .lead {
+    flex: 1;
+    min-width: 2ch;
+    align-self: center;
+    transform: translateY(1px);
+  }
+
+  .more {
+    flex: none;
+    color: var(--muted);
+    font-size: var(--small);
+  }
+
+  .more:hover {
+    color: var(--accent);
+  }
+</style>
