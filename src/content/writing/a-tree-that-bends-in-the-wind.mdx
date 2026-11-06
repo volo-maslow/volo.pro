@@ -1,0 +1,168 @@
+---
+title: A tree that bends in the wind
+description: how the dotted tree that used to stand behind this site was generated, drawn and moved, and how it stayed out of the way.
+date: 2026-11-05
+draft: true
+tags: [canvas, animation, typescript]
+---
+
+The tree that used to stand behind these pages is a few thousand dots on one
+canvas. Every few seconds a gust of wind leans it over, the twigs shiver, and it
+springs back. I first built it for [Arctype](https://arctype.ai) and ported it
+here unchanged. This is how it works, file by file.
+
+## a seeded skeleton
+
+Everything starts from one constant, `SEED = 0x41524354`, which spells "ARCT".
+`skeleton.ts` grows the tree in a normalised space where the root sits at the
+origin and the whole silhouette is exactly one unit tall.
+
+The trunk is eight short joints with a gentle lean to the left and a damped
+random walk. On top of it, branching is recursive: each `spawn` makes two
+children, or three with a 30% chance. A leader keeps 80% of the length and
+deflects a little; side shoots deflect further and get 62–74% of it. Every
+direction is pulled a quarter of the way back toward vertical, which is what
+keeps the crown from sprawling. A few extra laterals come off the trunk between
+55% and 90% of its height. Branch tips get a foliage cluster, and so do some
+deeper joints.
+
+There are two random streams, not one: one decides topology and geometry, the
+other decides motion parameters.
+
+```ts
+// skeleton.ts
+const rs: Rng = createRng(seed);
+const rd: Rng = createRng(seed ^ 0x9e3779b9);
+```
+
+That separation turned out to matter more than I expected. I could retune how
+the tree sways for days without the shape ever changing under me.
+
+Each joint also gets its mechanics up front: how flexible it is (thin wood bends,
+thick wood doesn't), a natural frequency between `F_TRUNK` and `F_TWIG`, a
+damping ratio, and a lag.
+
+## from branches to dots
+
+`rasterize.ts` turns the rest pose into a dot field on a grid anchored to the
+root, so the raster doesn't depend on where the tree sits on screen. Wood cells
+are the grid points within half a branch's thickness of a segment; the nearest
+segment owns the dot. Foliage is a noisy disc per cluster: the edge wobbles with
+value noise, the density thins toward the rim, and a hash of the integer cell
+decides each dot. Because those hashes depend only on the cell, never on draw
+order, the same seed gives the same field in every browser.
+
+Every dot lands in one of four buckets, each with its own alpha:
+
+```ts
+// config.ts
+/** Base alpha per draw bucket: 0 trunk, 1 branches, 2 foliage, 3 light foliage. */
+export const ALPHA: readonly [number, number, number, number] = [
+  0.32, 0.26, 0.2, 0.13,
+];
+```
+
+The renderer leans on that. Each combination of bucket and mask level is one
+draw code, and each draw code is one `fillStyle`, one path of arcs and one
+`fill()`. Light foliage is drawn first and the trunk last, so the darker wood
+sits on top. The canvas itself is only as big as the tree's bounding box plus a
+motion margin, not the whole viewport.
+
+## wind as an envelope
+
+`wind.ts` doesn't simulate air. It drives a single number, `strength`, from 0
+to 1 with anime.js timelines. There are two kinds of event. A gust swells in,
+peaks, eases off, sometimes swells again, then drops fast so the branches spring
+back on their own inertia. A breath is a soft rise and fall. Between events the
+scheduler is a plain `setTimeout`, because a pending animation timer would keep
+the frame loop alive.
+
+What makes it read as wind rather than a tilt is that no two parts of the tree
+see the same moment. Every frame pushes the envelope into a small ring buffer
+(`history.ts`), and each joint reads it slightly in the past. The lag grows with
+distance from the root and with horizontal position, so a gust visibly travels
+up the trunk and across the crown:
+
+```ts
+// skeleton.ts
+const lag = clamp(pathDist[j] * 520 + normX * 260 + ch.lag, 0, LAG_MAX);
+```
+
+Lags are quantised to a dozen levels, so the buffer is sampled a dozen times
+per frame, not once per joint.
+
+On top of that sits turbulence: the tree's width is split into vertical bands,
+and each band multiplies the envelope by a slowly scrolling 1D noise value. Two
+branches side by side never move in lockstep.
+
+## springs, not keyframes
+
+`pose.ts` gives every joint a damped spring. The wind sets a target angle; the
+spring chases it with semi-implicit Euler, two substeps when a frame runs long.
+Stiff, slow trunk joints barely move; flexible twigs overshoot and ring.
+
+```ts
+// pose.ts
+for (let i = 0; i < sub; i++) {
+  v += (om2 * (tgt - th) - damp * v) * h;
+  th += v * h;
+}
+```
+
+Angles accumulate down the chain, so a small bend at the base carries everything
+above it. Joints from the third branching order outward add a fast sine flutter
+scaled by the wind they feel, and a small fraction of foliage dots get their own
+jitter, which is where the shimmer comes from. Foliage clusters have their own
+small springs too, kept deliberately weak: stronger cluster rotation made
+neighbouring patches overlap into moiré.
+
+## stopping
+
+The tree costs nothing when nothing is happening. After an envelope ends, the
+runtime watches the tips. Once they are within a fraction of a pixel of rest,
+nearly motionless, and no leaves are in the air for `SETTLE_FRAMES` frames in a
+row, it snaps everything back to the exact rest pose, draws once, and pauses the
+anime timer. With no live animation, nothing requests frames. A fallback timeout
+settles it anyway if the springs take too long. The host element exposes the
+state as `data-state`: `init`, `idle`, `gust`, `breath`, `touch`, or `static`.
+
+## staying off the text
+
+A background that draws over what you are reading is a bad background. Any
+element marked `data-tree-avoid` becomes a rectangle in a content-safe mask.
+Dots inside a hard rectangle aren't drawn; a feathered band around it softens
+them; `data-tree-avoid="soft"` only dims. The mask is computed from rest
+positions, so it is cheap, and it is re-measured on scroll, resize and once web
+fonts have loaded and the text has reflowed. On mobile every marker only
+softens, so the tree stays whole behind the content.
+
+## brushing the crown
+
+On desktop, with a real hovering, fine pointer, moving the mouse through the
+crown pushes branches. `touch.ts` turns pointer samples into a smoothed velocity,
+and once per frame the swept cursor segment pushes nearby joints across their
+swing direction. Part of each push carries to the parent, so the branch moves,
+not just the twig. The push has a fast attack and a fast release, so when the
+cursor leaves, the springs ring. I call it "brush and twang". Hovering links or
+form controls never stirs anything, and slow movement does nothing at all.
+
+## leaves
+
+During strong gusts, a few foliage dots from the leeward edge of the crown come
+loose and drift away on their own tween. A fast flick through the foliage can
+shake one loose as well. There is a fixed pool of four, spacing between spawns,
+and per-gust and per-session caps. A detached dot never comes back: reappearing
+reads as a glitch.
+
+## budgets and good manners
+
+The tree scales to the device. The desktop variant grows up to six branching
+orders with a 5000-dot budget; the mobile one stops at five orders with 2600 dots.
+If a field comes out over budget, the rasteriser widens the grid pitch until it
+fits. The backing store is capped too, and device pixel ratio never goes above 2.
+
+It also waits its turn. The runtime mounts on `requestIdleCallback`, fades the
+canvas in, and under `prefers-reduced-motion` it draws the rest pose once and
+never starts the wind. Hidden tabs pause the scheduler. And the whole thing is
+`aria-hidden` and `pointer-events: none`: it's decoration, and it behaves like
+it.

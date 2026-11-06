@@ -1,0 +1,54 @@
+---
+import type { Project } from '../data/projects';
+
+interface Props {
+  projects: Project[];
+  /** Also list what each project is built with (projects page). */
+  detailed?: boolean;
+}
+
+const { projects, detailed = false } = Astro.props;
+---
+
+<ol class="entries" data-scene-avoid>
+  {projects.map((p) => (
+    <li>
+      <span class="aside tabular">{p.date}</span>
+      <div>
+        {p.url ? (
+          <a class="name" href={p.url}>
+            {p.name}
+            <span class="arrow" aria-hidden="true"> ↗</span>
+          </a>
+        ) : (
+          <span class="name">{p.name}</span>
+        )}
+        <span class="role">{p.role}</span>
+        <p class="note">{p.summary}</p>
+        {detailed && p.tech.length > 0 && (
+          <p class="tech">
+            <span class="visually-hidden">built with: </span>
+            {p.tech.map((t, i) => (
+              <>
+                {i > 0 && <span class="sep" aria-hidden="true"> · </span>}
+                <span>{t}</span>
+              </>
+            ))}
+          </p>
+        )}
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .tech {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: var(--small);
+  }
+
+  .sep {
+    color: var(--dot);
+  }
+</style>

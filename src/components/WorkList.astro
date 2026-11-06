@@ -1,0 +1,30 @@
+---
+import type { Role } from '../data/work';
+import { formatRange } from '../lib/format';
+
+interface Props {
+  roles: Role[];
+}
+
+const { roles } = Astro.props;
+---
+
+<ol class="entries" data-scene-avoid>
+  {roles.map((r) => (
+    <li>
+      <span class="aside tabular">{formatRange(r.start, r.end)}</span>
+      <div>
+        {r.url ? (
+          <a class="name" href={r.url}>
+            {r.company}
+            <span class="arrow" aria-hidden="true"> ↗</span>
+          </a>
+        ) : (
+          <span class="name">{r.company}</span>
+        )}
+        <span class="role">{r.title}</span>
+        <p class="note">{r.summary}</p>
+      </div>
+    </li>
+  ))}
+</ol>

@@ -1,0 +1,46 @@
+---
+/**
+ * DotTree.astro — full-viewport, decorative background: a seeded dotted tree
+ * whose branches bend in occasional gusts of wind (anime.js + Canvas 2D).
+ * Sits behind content (z-index 0, no pointer events, hidden from assistive tech).
+ * On desktop, a moving mouse brushes the crown (window pointermove listener);
+ * the host stays `pointer-events: none`, so it never blocks or captures input.
+ * Page content should be `position: relative; z-index: 1`; mark text with
+ * `data-scene-avoid` / `data-tree-avoid` (hard) or `="soft"` to keep dots off it.
+ * Retint with `--scene-ink` (or `--tree-ink`): r,g,b on this element or :root.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<dot-tree
+  class:list={['dot-tree', className]}
+  aria-hidden="true"
+  data-state="init"
+>
+  <canvas></canvas>
+</dot-tree>
+
+<style>
+  .dot-tree {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+    contain: strict;
+  }
+
+  .dot-tree canvas {
+    position: absolute;
+    display: block;
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import './runtime';
+</script>

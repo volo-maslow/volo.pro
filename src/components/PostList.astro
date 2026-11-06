@@ -1,0 +1,36 @@
+---
+import type { Post } from '../lib/posts';
+import { isoDate } from '../lib/format';
+import { readingTime } from '../lib/readingTime';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+{posts.length === 0 ? (
+  <p class="empty" data-scene-avoid>
+    nothing here yet.
+  </p>
+) : (
+  <ol class="entries" data-scene-avoid>
+    {posts.map((post) => (
+      <li>
+        <time class="aside" datetime={isoDate(post.data.date)}>
+          {isoDate(post.data.date)}
+        </time>
+        <div>
+          <a class="name" href={`/writing/${post.id}`}>
+            {post.data.title.toLowerCase()}
+          </a>
+          <p class="note">{post.data.description}</p>
+        </div>
+        <span class="meta tabular">
+          {post.data.draft ? 'draft' : `${readingTime(post.body)} min`}
+        </span>
+      </li>
+    ))}
+  </ol>
+)}

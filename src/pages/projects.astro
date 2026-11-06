@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
+import ProjectList from '../components/ProjectList.astro';
+import { projects } from '../data/projects';
+---
+
+<Base
+  title="projects"
+  description="things volo maslow has built."
+  crumbs={[{ label: 'projects' }]}
+>
+  <PageHead title="projects">
+    things i've built, mostly for myself first.
+  </PageHead>
+
+  <Section n={1} title="built">
+    <ProjectList projects={projects} detailed />
+  </Section>
+</Base>

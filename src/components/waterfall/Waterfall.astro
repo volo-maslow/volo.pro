@@ -1,0 +1,53 @@
+---
+/**
+ * Waterfall.astro — full-viewport decorative background: a seeded dotted
+ * waterfall falling from rocks into a partly visible pool (anime.js + Canvas
+ * 2D), drawn in the same dot language as the wind tree. Sits behind content
+ * (z-index 0, no pointer events, hidden from assistive tech). The mouse parts
+ * the fall, trails a wake in the pool and pushes the mist; taps drop pebbles;
+ * scrolling sloshes the pool. Listeners live on window, so the host never
+ * blocks or captures input.
+ * Retint with `--scene-ink: r,g,b` (falls back to `--tree-ink`); the water may
+ * carry its own `--scene-water-ink` (else the rock ink). Mark text with
+ * `data-scene-avoid` / `data-tree-avoid` (="soft" to only soften).
+ * Quiet variant: add class `dot-waterfall--quiet` (or any class that sets
+ * `--scene-quiet: 1`): 30 fps, fewer droplets, lighter ink. Dim the host
+ * yourself (Base.astro uses `.backdrop--quiet`).
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<dot-waterfall class:list={['dot-waterfall', className]} aria-hidden="true" data-state="init">
+  <canvas data-layer="rock"></canvas>
+  <canvas data-layer="water"></canvas>
+</dot-waterfall>
+
+<style>
+  .dot-waterfall {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+    contain: strict;
+  }
+
+  .dot-waterfall canvas {
+    position: absolute;
+    display: block;
+    opacity: 0;
+  }
+
+  /* Runtime-only switch (30 fps, fewer droplets); the dimming is the host page's job (.backdrop--quiet). */
+  :global(.dot-waterfall--quiet) {
+    --scene-quiet: 1;
+  }
+</style>
+
+<script>
+  import './runtime';
+</script>

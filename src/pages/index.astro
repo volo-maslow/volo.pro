@@ -1,0 +1,110 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import PostList from '../components/PostList.astro';
+import WorkList from '../components/WorkList.astro';
+import ProjectList from '../components/ProjectList.astro';
+import { site } from '../data/site';
+import { work } from '../data/work';
+import { projects } from '../data/projects';
+import { elsewhere } from '../data/elsewhere';
+import { getPosts } from '../lib/posts';
+import { profile, statement } from '../lib/profile';
+
+const posts = (await getPosts()).slice(0, 4);
+---
+
+<Base fullScene crumbs={[{ label: 'index' }]}>
+  <header class="hero">
+    <div class="who" data-scene-avoid>
+      <h1>{site.name.toLowerCase()}</h1>
+      <p class="tagline">{site.tagline}</p>
+    </div>
+    <p class="statement" data-scene-avoid>{statement}</p>
+  </header>
+
+  <Section n={1} title="profile">
+    <dl class="spec" data-scene-avoid>
+      {profile.map((row) => (
+        <div>
+          <dt>{row.label}</dt>
+          <dd>
+            {row.value.map((line) =>
+              row.href ? (
+                <a class="line" href={row.href}>
+                  {line}
+                </a>
+              ) : (
+                <span class="line">{line}</span>
+              ),
+            )}
+            {row.sub && <span class="sub">{row.sub}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+
+  <Section n={2} title="writing" more={{ href: '/writing', label: 'all writing' }}>
+    <PostList posts={posts} />
+  </Section>
+
+  <Section n={3} title="work" more={{ href: '/work', label: 'all work' }}>
+    <WorkList roles={work.slice(0, 3)} />
+  </Section>
+
+  <Section n={4} title="projects" more={{ href: '/projects', label: 'all projects' }}>
+    <ProjectList projects={projects.slice(0, 3)} />
+  </Section>
+
+  <Section n={5} title="elsewhere">
+    <dl class="spec" data-scene-avoid>
+      {elsewhere.map((l) => (
+        <div>
+          <dt>{l.label}</dt>
+          <dd>
+            <a class="line" href={l.href}>
+              {l.detail ?? l.href}
+            </a>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: 128px;
+  }
+
+  @media (max-width: 639px) {
+    .hero {
+      padding-top: 88px;
+    }
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .tagline {
+    color: var(--muted);
+  }
+
+  .statement {
+    max-width: 17em;
+    margin-top: 40px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: clamp(30px, 4.2vw, 44px);
+    font-weight: 300;
+    font-optical-sizing: auto;
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+</style>

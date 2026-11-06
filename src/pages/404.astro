@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
+
+const elsewhere = [
+  { label: 'index', href: '/' },
+  { label: 'writing', href: '/writing' },
+  { label: 'projects', href: '/projects' },
+  { label: 'now', href: '/now' },
+];
+---
+
+<Base
+  title="not found"
+  description="this page does not exist."
+  noindex
+  crumbs={[{ label: '404' }]}
+>
+  <PageHead title="not found" facts={[{ label: 'status', value: '404' }]}>
+    nothing here. it may have moved, or never existed.
+  </PageHead>
+
+  <Section n={1} title="try instead">
+    <dl class="spec" data-scene-avoid>
+      {elsewhere.map((l) => (
+        <div>
+          <dt>{l.label}</dt>
+          <dd>
+            <a class="line" href={l.href}>{l.href}</a>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+</Base>

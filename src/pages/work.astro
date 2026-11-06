@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
+import WorkList from '../components/WorkList.astro';
+import { work } from '../data/work';
+import { site } from '../data/site';
+---
+
+<Base
+  title="work"
+  description="where volo maslow has worked, and on what."
+  crumbs={[{ label: 'work' }]}
+>
+  <PageHead
+    title="work"
+    facts={[{ label: 'write to', value: site.email, href: `mailto:${site.email}` }]}
+  >
+    roles, newest first. for a project together, write to me.
+  </PageHead>
+
+  <Section n={1} title="roles">
+    <WorkList roles={work} />
+  </Section>
+</Base>

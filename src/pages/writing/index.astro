@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import Section from '../../components/Section.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, type Post } from '../../lib/posts';
+
+const posts = await getPosts();
+
+// Newest year first; posts are already newest first.
+const years = new Map<number, Post[]>();
+for (const post of posts) {
+  const y = post.data.date.getUTCFullYear();
+  years.set(y, [...(years.get(y) ?? []), post]);
+}
+const count = posts.length;
+---
+
+<Base
+  title="writing"
+  description="notes and essays by volo maslow."
+  crumbs={[{ label: 'writing' }]}
+>
+  <PageHead
+    title="writing"
+    facts={[
+      { label: 'entries', value: `${count} ${count === 1 ? 'post' : 'posts'}` },
+      { label: 'feed', value: '/rss.xml', href: '/rss.xml' },
+    ]}
+  >
+    notes on building products, mostly technical.
+  </PageHead>
+
+  {years.size === 0 ? (
+    <Section n={1} title="archive">
+      <PostList posts={[]} />
+    </Section>
+  ) : (
+    [...years].map(([year, list], i) => (
+      <Section n={i + 1} title={String(year)}>
+        <PostList posts={list} />
+      </Section>
+    ))
+  )}
+</Base>

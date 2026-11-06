@@ -1,0 +1,43 @@
+---
+title: colophon
+description: what this site is built with, and why it looks the way it does.
+date: 2026-11-05
+draft: false
+tags: [meta]
+---
+
+This is my personal site: a place for writing, a list of work and projects, and
+a [/now](/now) page. I wanted something I own, that loads fast, and that I can
+still edit in ten years without remembering how a framework worked.
+
+## stack
+
+- [Astro](https://astro.build), with static output. Every page is plain HTML
+  built ahead of time. There is no client framework; the only sizeable script
+  is the background scene.
+- [MDX](https://mdxjs.com) for posts. Each post is a file in the repository
+  with a title, a description, a date and a draft flag.
+- Code blocks are highlighted at build time with Shiki: `github-light` in light
+  mode, `vesper` in dark.
+- [IBM Plex Mono](https://www.ibm.com/plex/) for everything, and
+  [Newsreader](https://fonts.google.com/specimen/Newsreader) for the home
+  statement and post titles, both self-hosted. No font requests to third
+  parties.
+
+## the background
+
+The dotted waterfall in the background falls from a seeded cliff into a pool
+that is only partly in view, drawn as dots on a fixed grid like the tree that
+stood here before it, which came from [Arctype](https://arctype.ai), the
+journal I'm building. The pointer parts the falling water and leaves a wake in
+the pool, and a click drops a pebble. It keeps its dots off the text and stays
+still if you ask your system for reduced motion.
+
+## hosting and source
+
+The site deploys from the repository on every push to `main`. The source is
+on GitHub at
+[github.com/volo-maslow/volo.pro](https://github.com/volo-maslow/volo.pro).
+
+There is no analytics, no cookies and no tracking. If you want to follow along,
+there is a full-content [RSS feed](/rss.xml), and a sitemap for everyone else.

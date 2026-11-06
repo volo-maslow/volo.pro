@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
+import { site } from '../data/site';
+import { formatDate, isoDate } from '../lib/format';
+
+// TODO verify: placeholder content, update when it changes.
+const updated = new Date('2026-11-05');
+
+const rows = [
+  { label: 'work', value: 'engineering at uptain in hamburg.' },
+  {
+    label: 'building',
+    value: 'arctype, a calm voice and text journal.',
+    href: 'https://arctype.ai',
+  },
+  {
+    label: 'also',
+    value: 'putting this site together and writing down how things work.',
+  },
+];
+---
+
+<Base
+  title="now"
+  description="what volo maslow is doing now."
+  crumbs={[{ label: 'now' }]}
+>
+  <PageHead
+    title="now"
+    facts={[
+      {
+        label: 'updated',
+        value: formatDate(updated).toLowerCase(),
+        datetime: isoDate(updated),
+      },
+    ]}
+  >
+    what i'm doing now.
+  </PageHead>
+
+  <Section n={1} title="at present">
+    <dl class="spec" data-scene-avoid>
+      {rows.map((r) => (
+        <div>
+          <dt>{r.label}</dt>
+          <dd>
+            {r.href ? (
+              <a class="line" href={r.href}>
+                {r.value}
+                <span class="arrow" aria-hidden="true"> ↗</span>
+              </a>
+            ) : (
+              r.value
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
+    <p class="note" data-scene-avoid>
+      a <a class="text-link" href="https://nownownow.com/about">now page</a>.
+      if you're building something and want a hands-on engineer,{' '}
+      <a class="text-link" href={`mailto:${site.email}`}>write to me</a>.
+    </p>
+  </Section>
+</Base>
+
+<style>
+  .note {
+    max-width: 52ch;
+    margin-top: 26px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .arrow {
+    color: var(--muted);
+  }
+
+  a:hover .arrow {
+    color: var(--accent);
+  }
+</style>
