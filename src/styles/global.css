@@ -1,3 +1,5 @@
+/* volo.pro document styles. Tokens in tokens.css; article body in prose.css. */
+
 *,
 *::before,
 *::after {
@@ -12,6 +14,8 @@ h4,
 p,
 ul,
 ol,
+dl,
+dd,
 figure,
 blockquote,
 pre {
@@ -22,14 +26,15 @@ html {
   color-scheme: light dark;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  background: var(--paper);
 }
 
 body {
   min-height: 100dvh;
-  background: var(--surface);
+  background: var(--paper);
   color: var(--text);
-  font-family: var(--font-mono);
-  font-size: var(--text-body);
+  font-family: var(--mono);
+  font-size: var(--body);
   line-height: var(--leading);
   font-variant-ligatures: none;
   -webkit-font-smoothing: antialiased;
@@ -38,18 +43,12 @@ body {
 
 a {
   color: inherit;
-  text-decoration-line: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--border);
-  transition:
-    color var(--ease),
-    text-decoration-color var(--ease);
+  text-decoration: none;
+  transition: color var(--ease);
 }
 
 a:hover {
   color: var(--accent);
-  text-decoration-color: currentColor;
 }
 
 time,
@@ -58,14 +57,13 @@ time,
 }
 
 ::selection {
-  background: var(--ink);
-  color: var(--surface);
+  background: var(--select);
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 2px;
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
 }
 
 :focus:not(:focus-visible) {
@@ -79,7 +77,6 @@ time,
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0 0 0 0);
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
@@ -96,33 +93,249 @@ time,
 
 .skip-link:focus {
   position: fixed;
-  top: 8px;
-  left: 8px;
+  top: 12px;
+  left: 12px;
   z-index: 10;
   width: auto;
   height: auto;
   overflow: visible;
   clip-path: none;
-  padding: 6px 10px;
-  border-radius: var(--radius);
+  padding: 6px 12px;
   background: var(--ink);
-  color: var(--surface);
-  font-size: var(--text-sm);
-  text-decoration: none;
+  color: var(--paper);
+  font-size: var(--small);
 }
 
-.muted {
+/* ---------- background scene (layouts/Base.astro) ---------- */
+
+/* The scene fades its own canvas in; these set the host's ceiling. */
+.backdrop {
+  opacity: 0.85;
+}
+
+.backdrop--quiet {
+  opacity: 0.5;
+}
+
+/* ---------- page frame ---------- */
+
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: calc(var(--column) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: 40px var(--gutter) 40px;
+}
+
+/*
+ * Wide screens: column + scene lane are centred as one group, so the column
+ * moves left of centre and the waterfall falls through the right margin
+ * (waterfall/layout.ts places its lip in the lane with the same formula).
+ */
+@media (min-width: 1024px) {
+  .page {
+    margin-left: max(
+      0px,
+      calc((100vw - var(--column) - 2 * var(--gutter) - var(--scene-lane)) / 2)
+    );
+    margin-right: auto;
+    padding-top: 56px;
+  }
+}
+
+/* Font render gate (Base.astro): content waits for its faces; the scene does not. */
+.fonts-loading .page,
+.fonts-loading .skip-link {
+  visibility: hidden;
+}
+
+main {
+  flex: 1;
+}
+
+/* ---------- shared pieces ---------- */
+
+/* A rule made of dots, on the same 6px pitch as the background scene. */
+.dots {
+  height: 3px;
+  background-image: radial-gradient(
+    circle at 1.5px 1.5px,
+    var(--dot) 0.85px,
+    transparent 1.15px
+  );
+  background-size: 6px 3px;
+  background-repeat: repeat-x;
+}
+
+/* Label / value spec sheet: <dl class="spec"><div><dt/><dd/></div>…</dl>. */
+.spec {
+  display: grid;
+  grid-template-columns: var(--label) 1fr;
+  margin: 0;
+}
+
+.spec > div {
+  display: contents;
+}
+
+.spec dt,
+.spec dd {
+  padding-block: 11px 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.spec > div:last-child dt,
+.spec > div:last-child dd {
+  border-bottom: 1px solid var(--rule);
+}
+
+.spec dt {
+  padding-right: 2ch;
   color: var(--muted);
 }
 
-.accent {
+.spec dd {
+  color: var(--ink);
+}
+
+.spec .line {
+  display: block;
+}
+
+.spec a.line {
+  width: fit-content;
+}
+
+.spec .sub {
+  display: block;
+  color: var(--muted);
+}
+
+/* Compact spec sheet: article details, page facts. */
+.spec--compact {
+  font-size: var(--small);
+}
+
+.spec--compact dt,
+.spec--compact dd {
+  padding-block: 8px 9px;
+}
+
+@media (max-width: 479px) {
+  .spec:not(.spec--compact) {
+    font-size: 13.5px;
+  }
+}
+
+/*
+ * Entries: aside (date / years) · name, role, note · meta.
+ * Used by PostList, WorkList and ProjectList.
+ */
+.entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entries > li {
+  display: grid;
+  grid-template-columns: var(--label) 1fr auto;
+  padding-block: 14px 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.entries > li:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.entries .aside,
+.entries .meta,
+.entries .role {
+  color: var(--muted);
+}
+
+.entries .meta {
+  padding-left: 2ch;
+  font-size: var(--small);
+}
+
+.entries .name {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.entries a.name:hover {
   color: var(--accent);
 }
 
-/* Bare list used for post/work/project rows. */
-.plain-list {
-  list-style: none;
-  padding: 0;
+.entries .arrow {
+  color: var(--muted);
+  font-weight: 400;
+  transition: color var(--ease);
+}
+
+.entries a.name:hover .arrow {
+  color: var(--accent);
+}
+
+.entries .role {
+  margin-left: 1.5ch;
+}
+
+.entries .role::before {
+  content: '· ';
+  color: var(--dot);
+}
+
+.entries .note {
+  max-width: 52ch;
+  margin-top: 2px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+@media (max-width: 479px) {
+  .entries > li {
+    grid-template-columns: 1fr auto;
+  }
+
+  .entries .aside {
+    grid-column: 1 / -1;
+    font-size: var(--small);
+  }
+
+  .entries .role {
+    display: block;
+    margin-left: 0;
+  }
+
+  .entries .role::before {
+    content: none;
+  }
+}
+
+.empty {
+  color: var(--muted);
+}
+
+/* An inline text link inside running copy: dotted-ink underline, amber on hover. */
+.text-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--dot);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition:
+    color var(--ease),
+    text-decoration-color var(--ease);
+}
+
+.text-link:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -134,10 +347,4 @@ time,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* Font render gate (layouts/Base.astro): content waits for IBM Plex Mono; the tree does not. */
-.fonts-loading .page,
-.fonts-loading .skip-link {
-  visibility: hidden;
 }

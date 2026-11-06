@@ -6,8 +6,8 @@
  * On desktop, a moving mouse brushes the crown (window pointermove listener);
  * the host stays `pointer-events: none`, so it never blocks or captures input.
  * Page content should be `position: relative; z-index: 1`; mark text with
- * `data-tree-avoid` (hard) or `data-tree-avoid="soft"` to keep dots off it.
- * Retint with `--tree-ink: r,g,b` on this element or :root.
+ * `data-scene-avoid` / `data-tree-avoid` (hard) or `="soft"` to keep dots off it.
+ * Retint with `--scene-ink` (or `--tree-ink`): r,g,b on this element or :root.
  */
 interface Props {
   class?: string;

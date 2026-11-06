@@ -1,24 +1,13 @@
 ---
 import { site } from '../data/site';
-import { elsewhere } from '../data/elsewhere';
 
-const shown = ['email', 'github', 'linkedin', 'rss'];
-const links = elsewhere.filter((l) => shown.includes(l.label));
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer" data-tree-avoid>
-  <p>
-    {links.map((l, i) => (
-      <>
-        {i > 0 && <span aria-hidden="true"> · </span>}
-        <a href={l.href}>{l.label}</a>
-      </>
-    ))}
-  </p>
-  <p>
-    © {year} {site.name.toLowerCase()}
-  </p>
+<footer class="footer" data-scene-avoid>
+  <p>© {year} {site.name.toLowerCase()}</p>
+  <p>set in plex mono &amp; newsreader</p>
+  <p>static html · no cookies · no tracking</p>
 </footer>
 
 <style>
@@ -27,14 +16,11 @@ const year = new Date().getFullYear();
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 4px 24px;
-    margin-top: 72px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
+    margin-top: 128px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
     color: var(--muted);
-    font-size: var(--text-xs);
-  }
-
-  a {
-    text-decoration: none;
+    font-size: var(--tiny);
+    letter-spacing: 0.01em;
   }
 </style>

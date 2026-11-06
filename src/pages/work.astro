@@ -1,42 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
 import WorkList from '../components/WorkList.astro';
 import { work } from '../data/work';
+import { site } from '../data/site';
 ---
 
-<Base title="work" description="where volo maslow has worked, and on what.">
-  <header class="intro" data-tree-avoid>
-    <h1>
-      <span class="accent" aria-hidden="true">
-        *
-      </span>{' '}
-      work
-    </h1>
-    <p class="muted">
-      roles, newest first. for a project together,{' '}
-      <a href="mailto:hello@volo.pro">write to me</a>.
-    </p>
-  </header>
-  <WorkList roles={work} />
+<Base
+  title="work"
+  description="where volo maslow has worked, and on what."
+  crumbs={[{ label: 'work' }]}
+>
+  <PageHead
+    title="work"
+    facts={[{ label: 'write to', value: site.email, href: `mailto:${site.email}` }]}
+  >
+    roles, newest first. for a project together, write to me.
+  </PageHead>
+
+  <Section n={1} title="roles">
+    <WorkList roles={work} />
+  </Section>
 </Base>
-
-<style>
-  .intro {
-    margin-bottom: 32px;
-  }
-
-  h1 {
-    color: var(--ink);
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-
-  h1 .accent {
-    margin-right: 0.4ch;
-  }
-
-  .intro p {
-    margin-top: 8px;
-  }
-</style>

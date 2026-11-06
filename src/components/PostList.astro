@@ -1,6 +1,7 @@
 ---
 import type { Post } from '../lib/posts';
 import { isoDate } from '../lib/format';
+import { readingTime } from '../lib/readingTime';
 
 interface Props {
   posts: Post[];
@@ -10,66 +11,26 @@ const { posts } = Astro.props;
 ---
 
 {posts.length === 0 ? (
-  <p class="empty" data-tree-avoid>
+  <p class="empty" data-scene-avoid>
     nothing here yet.
   </p>
 ) : (
-  <ul class="posts" data-tree-avoid>
+  <ol class="entries" data-scene-avoid>
     {posts.map((post) => (
       <li>
-        <time datetime={isoDate(post.data.date)}>
+        <time class="aside" datetime={isoDate(post.data.date)}>
           {isoDate(post.data.date)}
         </time>
-        <a href={`/writing/${post.id}`}>
-          {post.data.title.toLowerCase()}
-          {post.data.draft && <span class="draft"> (draft)</span>}
-        </a>
+        <div>
+          <a class="name" href={`/writing/${post.id}`}>
+            {post.data.title.toLowerCase()}
+          </a>
+          <p class="note">{post.data.description}</p>
+        </div>
+        <span class="meta tabular">
+          {post.data.draft ? 'draft' : `${readingTime(post.body)} min`}
+        </span>
       </li>
     ))}
-  </ul>
+  </ol>
 )}
-
-<style>
-  .posts {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  li {
-    display: grid;
-    grid-template-columns: 112px 1fr;
-    gap: 0 16px;
-    padding-block: 4px;
-  }
-
-  time {
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: var(--accent);
-  }
-
-  .draft,
-  .empty {
-    color: var(--muted);
-  }
-
-  @media (max-width: 479px) {
-    li {
-      grid-template-columns: 1fr;
-      padding-block: 6px;
-    }
-
-    time {
-      font-size: var(--text-xs);
-    }
-  }
-</style>

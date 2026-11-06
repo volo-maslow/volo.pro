@@ -1,10 +1,20 @@
 ---
 import plex400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
+import plex400i from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-italic.woff2?url';
 import plex500 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
-import plex600 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2?url';
+import newsreader from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 import '../styles/tokens.css';
 import '../styles/global.css';
-import DotTree from '../components/tree/DotTree.astro';
+/*
+ * Background scene: the one place to swap it. Any component that takes a
+ * `class` prop, renders a fixed full-viewport host with pointer-events: none,
+ * reads `--scene-ink` and honours `data-scene-avoid` fits here. The quiet
+ * look on inner pages is `.backdrop--quiet` (global.css), so it applies to
+ * any scene. The previous scene, components/tree/DotTree.astro, reads the
+ * same names (tree/runtime.ts readInk and measureAvoid), so swapping the
+ * import back is enough; the lane is page CSS and needs nothing from it.
+ */
+import Backdrop from '../components/waterfall/Waterfall.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
@@ -17,8 +27,10 @@ interface Props {
   type?: 'website' | 'article';
   publishedTime?: Date;
   noindex?: boolean;
-  /** Home page gets the full tree; inner pages a quieter one. */
-  fullTree?: boolean;
+  /** Home page gets the full scene; inner pages a quieter one. */
+  fullScene?: boolean;
+  /** Path shown in the masthead after "volo.pro"; the last crumb is the current page. */
+  crumbs?: { label: string; href?: string }[];
 }
 
 const {
@@ -27,26 +39,29 @@ const {
   type = 'website',
   publishedTime,
   noindex = false,
-  fullTree = false,
+  fullScene = false,
+  crumbs = [],
 } = Astro.props;
 
 /*
- * IBM Plex Mono, latin subset, only the weights the CSS uses. Declared here
- * (not via @fontsource CSS) so the preload hrefs and the @font-face srcs are
- * the same hashed URLs. font-display: block, plus the fonts-loading gate
- * below, means text never paints in the fallback face.
+ * Faces, latin subset, only what the CSS uses: IBM Plex Mono 400 / 400 italic /
+ * 500 for everything, Newsreader (variable, opsz) at 300 for the home statement
+ * and post titles. Declared here (not via @fontsource CSS) so the preload hrefs
+ * and the @font-face srcs are the same hashed URLs. font-display: block, plus
+ * the fonts-loading gate below, means text never paints in a fallback face.
  */
-const fontFaces = [
-  [400, plex400],
-  [500, plex500],
-  [600, plex600],
-] as const;
 const latinRange =
   'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
-const fontFaceCss = fontFaces
+const faces = [
+  { family: 'IBM Plex Mono', style: 'normal', weight: '400', url: plex400 },
+  { family: 'IBM Plex Mono', style: 'italic', weight: '400', url: plex400i },
+  { family: 'IBM Plex Mono', style: 'normal', weight: '500', url: plex500 },
+  { family: 'Newsreader', style: 'normal', weight: '200 800', url: newsreader },
+];
+const fontFaceCss = faces
   .map(
-    ([weight, url]) =>
-      `@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:${weight};font-display:block;src:url(${url}) format('woff2');unicode-range:${latinRange}}`,
+    (f) =>
+      `@font-face{font-family:'${f.family}';font-style:${f.style};font-weight:${f.weight};font-display:block;src:url(${f.url}) format('woff2');unicode-range:${latinRange}}`,
   )
   .join('');
 
@@ -60,14 +75,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {fontFaces.map(([, url]) => (
-      <link rel="preload" href={url} as="font" type="font/woff2" crossorigin />
+    {faces.map((f) => (
+      <link rel="preload" href={f.url} as="font" type="font/woff2" crossorigin />
     ))}
     <style is:inline set:html={fontFaceCss} />
     <script is:inline>
-      // Render gate: hide the content wrapper (not the tree) until the faces
-      // are ready, so text never paints in a fallback font. Without JS the
-      // class is never added. Cached fonts resolve immediately.
+      // Render gate: hide the content wrapper (not the background) until the
+      // faces are ready, so text never paints in a fallback font. Without JS
+      // the class is never added. Cached fonts resolve immediately.
       (function () {
         var root = document.documentElement;
         var fonts = document.fonts;
@@ -76,12 +91,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
         var done = function () {
           root.classList.remove('fonts-loading');
         };
-        var family = ' 15px "IBM Plex Mono"';
-        Promise.all(
-          ['400', '500', '600'].map(function (w) {
-            return fonts.load(w + family);
-          }),
-        ).then(done, done);
+        Promise.all([
+          fonts.load('400 15px "IBM Plex Mono"'),
+          fonts.load('italic 400 15px "IBM Plex Mono"'),
+          fonts.load('500 15px "IBM Plex Mono"'),
+          fonts.load('300 40px "Newsreader"'),
+        ]).then(done, done);
         setTimeout(done, 800);
         // bfcache restore: never come back hidden.
         addEventListener('pageshow', function (e) {
@@ -109,12 +124,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <meta name="twitter:card" content="summary" />
     <meta
       name="theme-color"
-      content="#f5f4f0"
+      content="#f6f5e8"
       media="(prefers-color-scheme: light)"
     />
     <meta
       name="theme-color"
-      content="#141312"
+      content="#17110b"
       media="(prefers-color-scheme: dark)"
     />
     <meta name="color-scheme" content="light dark" />
@@ -129,12 +144,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     <meta name="generator" content={Astro.generator} />
   </head>
   <body>
-    <a class="skip-link" href="#main">
-      skip to content
-    </a>
-    <DotTree class={fullTree ? undefined : 'dot-tree--quiet'} />
+    <a class="skip-link" href="#main">skip to content</a>
+    <Backdrop
+      class={fullScene ? 'backdrop' : 'backdrop backdrop--quiet dot-waterfall--quiet'}
+    />
     <div class="page">
-      <Nav />
+      <Nav crumbs={crumbs} />
       <main id="main">
         <slot />
       </main>
@@ -142,41 +157,3 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
     </div>
   </body>
 </html>
-
-<style>
-  .page {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100dvh;
-    max-width: calc(var(--column) + 2 * var(--gutter));
-    margin-inline: auto;
-    padding: 48px var(--gutter);
-  }
-
-  /*
-   * Wide screens: the tree root sits at 0.76·vw (tree/layout.ts) and its crown
-   * spans roughly ±0.27·H around it. Centre column + tree lane as one group, so
-   * the column moves left of centre and the crown reads through the right margin.
-   */
-  @media (min-width: 1024px) {
-    .page {
-      margin-left: max(
-        0px,
-        calc((100vw - var(--column) - 2 * var(--gutter) - var(--tree-lane)) / 2)
-      );
-      margin-right: auto;
-    }
-  }
-
-  main {
-    flex: 1;
-    padding-top: 56px;
-  }
-
-  /* Inner pages: same tree, quieter. The runtime fades the canvas, not the host. */
-  :global(.dot-tree--quiet) {
-    opacity: 0.6;
-  }
-</style>

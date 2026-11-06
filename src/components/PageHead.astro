@@ -1,0 +1,71 @@
+---
+/**
+ * Head of an inner page: name of the page, one muted line (slot), and an
+ * optional compact spec sheet of facts about the page.
+ */
+interface Props {
+  title: string;
+  facts?: { label: string; value: string; href?: string; datetime?: string }[];
+}
+
+const { title, facts = [] } = Astro.props;
+---
+
+<header class="page-head">
+  <div class="who" data-scene-avoid>
+    <h1>{title}</h1>
+    <p class="intro"><slot /></p>
+  </div>
+  {facts.length > 0 && (
+    <dl class="spec spec--compact facts" data-scene-avoid>
+      {facts.map((f) => (
+        <div>
+          <dt>{f.label}</dt>
+          <dd>
+            {f.href ? (
+              <a class="line" href={f.href}>
+                {f.value}
+              </a>
+            ) : f.datetime ? (
+              <time datetime={f.datetime}>{f.value}</time>
+            ) : (
+              f.value
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )}
+</header>
+
+<style>
+  .page-head {
+    padding-top: 128px;
+  }
+
+  @media (max-width: 639px) {
+    .page-head {
+      padding-top: 88px;
+    }
+  }
+
+  h1 {
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .intro {
+    max-width: 52ch;
+    color: var(--muted);
+  }
+
+  .facts {
+    margin-top: 40px;
+  }
+
+  .facts a:hover {
+    color: var(--accent);
+  }
+</style>

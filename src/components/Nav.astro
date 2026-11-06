@@ -1,4 +1,15 @@
 ---
+/**
+ * Masthead: a file path on the left ("volo.pro / writing / colophon"),
+ * keyed nav on the right. The letters are real global shortcuts.
+ */
+interface Props {
+  /** Crumbs after "volo.pro"; a crumb without href is the current page. */
+  crumbs?: { label: string; href?: string }[];
+}
+
+const { crumbs = [] } = Astro.props;
+
 const items = [
   { key: 'h', label: 'home', href: '/' },
   { key: 'w', label: 'writing', href: '/writing' },
@@ -11,83 +22,128 @@ const isCurrent = (href: string): boolean =>
   href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
 ---
 
-<nav class="nav" aria-label="primary" data-tree-avoid>
-  <ul>
-    {items.map(({ key, label, href }) => (
-      <li>
-        <a
-          href={href}
-          data-shortcut={key}
-          aria-keyshortcuts={key}
-          aria-current={isCurrent(href) ? 'page' : undefined}
-        >
-          <span class="hint" aria-hidden="true">
-            [{key}]
-          </span>
-          <span class="label">{label}</span>
-        </a>
-      </li>
+<header class="mast" data-scene-avoid>
+  <p class="crumbs">
+    <a href="/">volo.pro</a>
+    {crumbs.map((c) => (
+      <>
+        <span class="slash" aria-hidden="true">/</span>
+        {c.href ? (
+          <a href={c.href}>{c.label}</a>
+        ) : (
+          <span class="here">{c.label}</span>
+        )}
+      </>
     ))}
-  </ul>
-</nav>
+  </p>
+  <nav aria-label="primary">
+    <ul>
+      {items.map(({ key, label, href }) => (
+        <li>
+          <a
+            href={href}
+            data-shortcut={key}
+            aria-keyshortcuts={key}
+            aria-current={isCurrent(href) ? 'page' : undefined}
+          >
+            <span class="key" aria-hidden="true">{key}</span>
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
 
 <script is:inline>
   // Global single-key shortcuts: [h] home, [w] writing, [p] projects, [n] now.
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented || e.repeat) return;
     if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-    const t = e.target;
+    var t = e.target;
     if (
       t instanceof HTMLElement &&
       (t.isContentEditable || t.closest('input, textarea, select'))
     )
       return;
-    const link = document.querySelector(
+    if (e.key.length !== 1) return;
+    var link = document.querySelector(
       'a[data-shortcut="' + e.key.toLowerCase() + '"]',
     );
-    if (!(link instanceof HTMLAnchorElement) || e.key.length !== 1) return;
+    if (!(link instanceof HTMLAnchorElement)) return;
     e.preventDefault();
     window.location.assign(link.href);
   });
 </script>
 
 <style>
-  .nav {
-    font-size: var(--text-sm);
+  .mast {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 32px;
+    font-size: var(--small);
+  }
+
+  .crumbs {
+    color: var(--ink);
+  }
+
+  .crumbs a:hover {
+    color: var(--accent);
+  }
+
+  .here {
+    color: var(--muted);
+  }
+
+  .slash {
+    margin-inline: 0.7ch;
+    color: var(--dot);
   }
 
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 24px;
-    margin: 0;
+    gap: 4px 22px;
     padding: 0;
     list-style: none;
   }
 
-  a {
+  nav a {
     color: var(--muted);
-    text-decoration: none;
   }
 
-  a:hover,
-  a[aria-current='page'] {
+  nav a:hover,
+  nav a[aria-current='page'] {
     color: var(--ink);
   }
 
-  a:hover .hint {
-    color: var(--accent);
-  }
-
-  .hint {
+  .key {
     display: none;
-    margin-right: 0.6ch;
+    margin-right: 0.7ch;
     color: var(--muted);
     transition: color var(--ease);
   }
 
+  .key::before {
+    content: '[';
+    color: var(--dot);
+  }
+
+  .key::after {
+    content: ']';
+    color: var(--dot);
+  }
+
+  nav a:hover .key,
+  nav a[aria-current='page'] .key {
+    color: var(--accent);
+  }
+
   @media (min-width: 640px) {
-    .hint {
+    .key {
       display: inline;
     }
   }

@@ -1,49 +1,71 @@
-/* volo.pro design tokens (docs/DESIGN.md). Light by default, dark via prefers-color-scheme. */
+/*
+ * volo.pro design tokens: "apothecary" (docs/DESIGN.md).
+ * Light: parchment and brown-black ink. Dark: an amber bottle in low light.
+ */
 :root {
-  --surface: #f5f4f0;
-  --surface-2: #eeede9;
-  --ink: #1a1917;
-  --text: #3d3b37;
-  --muted: #787774;
-  --border: #d5d3ce;
-  --accent: #d9480f;
-  /* r,g,b consumed by the dotted tree (src/components/tree/runtime.ts readInk). */
-  --tree-ink: 26, 25, 23;
+  --paper: #f6f5e8;
+  --paper-2: #efecdb;
+  --ink: #27231a;
+  --text: #3d382c;
+  --muted: #6b6753;
+  --rule: #d9d4bd;
+  --dot: #b9b298;
+  --accent: #8a5523;
+  --select: #e6d7b8;
+  /*
+   * r,g,b consumed by the background scene (waterfall/runtime.ts readInk):
+   * rock ink, and the water's own ink (a shade deeper, so the fall reads
+   * above the rock; in dark mode white water is the brightest thing).
+   */
+  --scene-ink: 104, 76, 44;
+  --scene-water-ink: 70, 56, 40;
 
-  --font-mono:
+  --mono:
     'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
 
-  --text-body: 15px;
-  --leading: 1.7;
-  --text-sm: 13px;
-  --text-xs: 12px;
-  --text-h1: 32px;
-  --text-h2: 14px;
+  --body: 14.5px;
+  --small: 12.5px;
+  --tiny: 11.5px;
+  --leading: 1.75;
 
   --column: 680px;
-  /* Space reserved right of the column for the tree crown on wide screens. */
-  --tree-lane: 440px;
-  --gutter: 20px;
-  --section-gap: 40px;
-  --radius: 6px;
-  --ease: 150ms ease;
+  /*
+   * Space reserved right of the column for the background scene on wide
+   * screens. Mirrored by PAGE_LANE in components/waterfall/config.ts.
+   */
+  --scene-lane: 440px;
+  --gutter: 22px;
+  /* Width of the label column in spec sheets, entries and section heads. */
+  --label: 15ch;
+  --ease: 220ms ease;
 }
 
 @media (min-width: 640px) {
   :root {
-    --gutter: 40px;
+    --gutter: 44px;
+    --label: 20ch;
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --label: 13ch;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: #141312;
-    --surface-2: #1c1b19;
-    --ink: #eceae5;
-    --text: #c9c6bf;
-    --muted: #86837d;
-    --border: #2b2a27;
-    --accent: #ff8a3d;
-    --tree-ink: 236, 234, 229;
+    --paper: #17110b;
+    --paper-2: #21180f;
+    --ink: #f0e6d0;
+    --text: #d4c8ae;
+    --muted: #a1957b;
+    --rule: #3a2f22;
+    --dot: #5a4a35;
+    --accent: #d6a15e;
+    --select: #4a361d;
+    --scene-ink: 178, 132, 78;
+    --scene-water-ink: 238, 228, 208;
   }
 }

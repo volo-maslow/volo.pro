@@ -1,9 +1,9 @@
 /**
- * The profile "spec sheet", derived from src/data. Values are taken from or
- * lightly rephrased out of site.ts / work.ts / elsewhere.ts; nothing new is added.
+ * The home "spec sheet", derived from src/data. Values are taken from or
+ * lightly rephrased out of site.ts / work.ts; nothing new is added.
  */
-import { site } from '../../data/site';
-import { work } from '../../data/work';
+import { site } from '../data/site';
+import { work } from '../data/work';
 
 export interface SpecRow {
   label: string;
@@ -31,12 +31,12 @@ export const profile: SpecRow[] = [
   },
   { label: 'based in', value: [basedIn] },
   {
+    // site.bio[1], without the leading "currently".
     label: 'currently',
-    value: [
-      'engineering at uptain in hamburg and building arctype, a calm voice and text journal.',
-    ],
+    value: [site.bio[1].replace(/^currently\s+/, '')],
   },
   {
+    // site.bio[2], split at the colon.
     label: 'suited to',
     value: ['founders and ctos who want to ship.'],
     sub: 'hands-on, close to the code.',

@@ -9,90 +9,102 @@ import { work } from '../data/work';
 import { projects } from '../data/projects';
 import { elsewhere } from '../data/elsewhere';
 import { getPosts } from '../lib/posts';
+import { profile, statement } from '../lib/profile';
 
 const posts = (await getPosts()).slice(0, 4);
 ---
 
-<Base fullTree>
+<Base fullScene crumbs={[{ label: 'index' }]}>
   <header class="hero">
-    <h1 data-tree-avoid>{site.name.toLowerCase()}</h1>
-    <p class="tagline" data-tree-avoid>
-      {site.tagline}
-    </p>
-    <div class="bio" data-tree-avoid>
-      <p>{site.bio.join(' ')}</p>
+    <div class="who" data-scene-avoid>
+      <h1>{site.name.toLowerCase()}</h1>
+      <p class="tagline">{site.tagline}</p>
     </div>
+    <p class="statement" data-scene-avoid>{statement}</p>
   </header>
 
-  <Section title="writing" more={{ href: '/writing', label: 'all writing ↗' }}>
+  <Section n={1} title="profile">
+    <dl class="spec" data-scene-avoid>
+      {profile.map((row) => (
+        <div>
+          <dt>{row.label}</dt>
+          <dd>
+            {row.value.map((line) =>
+              row.href ? (
+                <a class="line" href={row.href}>
+                  {line}
+                </a>
+              ) : (
+                <span class="line">{line}</span>
+              ),
+            )}
+            {row.sub && <span class="sub">{row.sub}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </Section>
+
+  <Section n={2} title="writing" more={{ href: '/writing', label: 'all writing' }}>
     <PostList posts={posts} />
   </Section>
 
-  <Section title="work" more={{ href: '/work', label: 'all work ↗' }}>
+  <Section n={3} title="work" more={{ href: '/work', label: 'all work' }}>
     <WorkList roles={work.slice(0, 3)} />
   </Section>
 
-  <Section
-    title="projects"
-    more={{ href: '/projects', label: 'all projects ↗' }}
-  >
+  <Section n={4} title="projects" more={{ href: '/projects', label: 'all projects' }}>
     <ProjectList projects={projects.slice(0, 3)} />
   </Section>
 
-  <Section title="elsewhere">
-    <ul class="elsewhere" data-tree-avoid>
+  <Section n={5} title="elsewhere">
+    <dl class="spec" data-scene-avoid>
       {elsewhere.map((l) => (
-        <li>
-          <span class="label">{l.label}</span>
-          <a href={l.href}>{l.detail ?? l.href}</a>
-        </li>
+        <div>
+          <dt>{l.label}</dt>
+          <dd>
+            <a class="line" href={l.href}>
+              {l.detail ?? l.href}
+            </a>
+          </dd>
+        </div>
       ))}
-    </ul>
+    </dl>
   </Section>
 </Base>
 
 <style>
+  .hero {
+    padding-top: 128px;
+  }
+
+  @media (max-width: 639px) {
+    .hero {
+      padding-top: 88px;
+    }
+  }
+
   h1 {
     color: var(--ink);
-    font-size: var(--text-h1);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
   }
 
   .tagline {
-    margin-top: 6px;
     color: var(--muted);
   }
 
-  .bio {
-    margin-top: 24px;
-    max-width: 60ch;
-  }
-
-  .elsewhere {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .elsewhere li {
-    display: grid;
-    grid-template-columns: 112px 1fr;
-    gap: 0 16px;
-    padding-block: 2px;
-  }
-
-  .elsewhere .label {
-    color: var(--muted);
-  }
-
-  .elsewhere a {
+  .statement {
+    max-width: 17em;
+    margin-top: 40px;
     color: var(--ink);
-    text-decoration: none;
-  }
-
-  .elsewhere a:hover {
-    color: var(--accent);
+    font-family: var(--serif);
+    font-size: clamp(30px, 4.2vw, 44px);
+    font-weight: 300;
+    font-optical-sizing: auto;
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
   }
 </style>

@@ -192,16 +192,21 @@ interface Built {
 const DEG = Math.PI / 180;
 const LAG_STEP = LAG_MAX / (LAG_LEVELS - 1);
 const TURB_SEED = SEED ^ 0x7e1;
-/** Used only when the page sets no [data-tree-avoid] markers: headings stay softened, controls and footer text hard-masked. */
+/** Used only when the page sets no [data-scene-avoid] / [data-tree-avoid] markers: headings stay softened, controls and footer text hard-masked. */
 const AVOID_FALLBACK_SOFT = 'main h1';
 const AVOID_FALLBACK_HARD =
   'main form input:not([tabindex="-1"]), main form button, main form p:not(.visually-hidden), footer nav a, footer p';
 /** The cursor over these never stirs the tree (form, links, text controls). */
 const CONTROL_SEL = 'input,button,a,textarea,select,label';
 
+/** The site-wide scene contract (layouts/Base.astro) first, then the tree's own name. */
 function readInk(host: HTMLElement): string {
-  const v = getComputedStyle(host).getPropertyValue('--tree-ink').trim();
-  return /^\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}$/.test(v) ? v : INK_RGB_DEFAULT;
+  const cs = getComputedStyle(host);
+  for (const name of ['--scene-ink', '--tree-ink']) {
+    const v = cs.getPropertyValue(name).trim();
+    if (/^\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}$/.test(v)) return v;
+  }
+  return INK_RGB_DEFAULT;
 }
 
 /** Mount the tree on `host` (which must contain a <canvas>). Returns a disposer. */
@@ -381,7 +386,7 @@ export function mountDotTree(host: HTMLElement): () => void {
     if (!b) return;
     // Explicit markers win; without any, fall back to the common content landmarks.
     let els: NodeListOf<HTMLElement> =
-      document.querySelectorAll<HTMLElement>('[data-tree-avoid]');
+      document.querySelectorAll<HTMLElement>('[data-scene-avoid],[data-tree-avoid]');
     let fallback = false;
     if (els.length === 0) {
       els = document.querySelectorAll<HTMLElement>(
@@ -399,7 +404,7 @@ export function mountDotTree(host: HTMLElement): () => void {
         b!.layout.variant === 'mobile' ||
         (fallback
           ? el.matches(AVOID_FALLBACK_SOFT)
-          : el.dataset.treeAvoid === 'soft');
+          : (el.dataset.sceneAvoid ?? el.dataset.treeAvoid) === 'soft');
       const level = soft ? MASK_SOFT_CODE : MASK_HARD_CODE;
       rects.push({ x: r.left, y: r.top, w: r.width, h: r.height, level });
       key += `${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)},${Math.round(r.height)},${level};`;

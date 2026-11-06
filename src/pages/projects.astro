@@ -1,39 +1,21 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
 import ProjectList from '../components/ProjectList.astro';
 import { projects } from '../data/projects';
 ---
 
-<Base title="projects" description="things volo maslow has built.">
-  <header class="intro" data-tree-avoid>
-    <h1>
-      <span class="accent" aria-hidden="true">
-        *
-      </span>{' '}
-      projects
-    </h1>
-    <p class="muted">things i've built, mostly for myself first.</p>
-  </header>
-  <ProjectList projects={projects} detailed />
+<Base
+  title="projects"
+  description="things volo maslow has built."
+  crumbs={[{ label: 'projects' }]}
+>
+  <PageHead title="projects">
+    things i've built, mostly for myself first.
+  </PageHead>
+
+  <Section n={1} title="built">
+    <ProjectList projects={projects} detailed />
+  </Section>
 </Base>
-
-<style>
-  .intro {
-    margin-bottom: 32px;
-  }
-
-  h1 {
-    color: var(--ink);
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-
-  h1 .accent {
-    margin-right: 0.4ch;
-  }
-
-  .intro p {
-    margin-top: 8px;
-  }
-</style>

@@ -1,59 +1,84 @@
 ---
 import Base from '../layouts/Base.astro';
-import '../styles/prose.css';
+import PageHead from '../components/PageHead.astro';
+import Section from '../components/Section.astro';
+import { site } from '../data/site';
 import { formatDate, isoDate } from '../lib/format';
 
 // TODO verify: placeholder content, update when it changes.
 const updated = new Date('2026-11-05');
+
+const rows = [
+  { label: 'work', value: 'engineering at uptain in hamburg.' },
+  {
+    label: 'building',
+    value: 'arctype, a calm voice and text journal.',
+    href: 'https://arctype.ai',
+  },
+  {
+    label: 'also',
+    value: 'putting this site together and writing down how things work.',
+  },
+];
 ---
 
-<Base title="now" description="what volo maslow is doing now.">
-  <header class="intro" data-tree-avoid>
-    <h1>
-      <span class="accent" aria-hidden="true">
-        *
-      </span>{' '}
-      now
-    </h1>
-    <p class="muted">
-      what i'm doing now. updated{' '}
-      <time datetime={isoDate(updated)}>{formatDate(updated)}</time>.
+<Base
+  title="now"
+  description="what volo maslow is doing now."
+  crumbs={[{ label: 'now' }]}
+>
+  <PageHead
+    title="now"
+    facts={[
+      {
+        label: 'updated',
+        value: formatDate(updated).toLowerCase(),
+        datetime: isoDate(updated),
+      },
+    ]}
+  >
+    what i'm doing now.
+  </PageHead>
+
+  <Section n={1} title="at present">
+    <dl class="spec" data-scene-avoid>
+      {rows.map((r) => (
+        <div>
+          <dt>{r.label}</dt>
+          <dd>
+            {r.href ? (
+              <a class="line" href={r.href}>
+                {r.value}
+                <span class="arrow" aria-hidden="true"> ↗</span>
+              </a>
+            ) : (
+              r.value
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
+    <p class="note" data-scene-avoid>
+      a <a class="text-link" href="https://nownownow.com/about">now page</a>.
+      if you're building something and want a hands-on engineer,{' '}
+      <a class="text-link" href={`mailto:${site.email}`}>write to me</a>.
     </p>
-  </header>
-  <div class="prose" data-tree-avoid="soft">
-    <ul>
-      <li>engineering at uptain in hamburg.</li>
-      <li>
-        building <a href="https://arctype.ai">arctype</a>, a calm voice and text
-        journal.
-      </li>
-      <li>putting this site together and writing down how things work.</li>
-    </ul>
-    <p class="muted">
-      a <a href="https://nownownow.com/about">now page</a>. if you're building
-      something and want a hands-on engineer,{' '}
-      <a href="mailto:hello@volo.pro">write to me</a>.
-    </p>
-  </div>
+  </Section>
 </Base>
 
 <style>
-  .intro {
-    margin-bottom: 32px;
+  .note {
+    max-width: 52ch;
+    margin-top: 26px;
+    color: var(--muted);
+    font-style: italic;
   }
 
-  h1 {
-    color: var(--ink);
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.4;
+  .arrow {
+    color: var(--muted);
   }
 
-  h1 .accent {
-    margin-right: 0.4ch;
-  }
-
-  .intro p {
-    margin-top: 8px;
+  a:hover .arrow {
+    color: var(--accent);
   }
 </style>
